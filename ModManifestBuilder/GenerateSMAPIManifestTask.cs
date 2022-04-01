@@ -48,8 +48,6 @@ public class GenerateSMAPIManifestTask : Task {
 
 	public override bool Execute() {
 
-		Log.LogMessage("Hello from GenerateSMAPIManifest!");
-
 		if (string.IsNullOrEmpty(Version)) {
 			Log.LogError($"[generate smapi manifest] <Version> cannot be empty or missing.");
 			return false;
@@ -143,9 +141,9 @@ public class GenerateSMAPIManifestTask : Task {
 
 		// Use <UniqueId> if it was specified.
 		if (!string.IsNullOrEmpty(UniqueId))
-			obj["UniqueId"] = UniqueId;
-		else if (!obj.ContainsKey("UniqueId")) {
-			Log.LogError("[generate smapi manifest] No <UniqueId> specified and \"UniqueId\" is not present in existing manifest. UniqueId is required.");
+			obj["UniqueID"] = UniqueId;
+		else if (!obj.ContainsKey("UniqueID")) {
+			Log.LogError("[generate smapi manifest] No <UniqueId> specified and \"UniqueID\" is not present in existing manifest. UniqueId is required.");
 			return false;
 		}
 
