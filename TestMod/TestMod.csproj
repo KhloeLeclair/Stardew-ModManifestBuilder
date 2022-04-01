@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Leclair.Stardew.TestMod</AssemblyName>
+    <RootNamespace>Leclair.Stardew.TestMod</RootNamespace>
+
+    <UniqueId>Leclair.Stardew.TestMod</UniqueId>
+    <Version>1.2.0</Version>
+    <UpdateKeys>NexusMods:1234, ModDrop:57718</UpdateKeys>
+    
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" ExcludeAssets="all" />
+  </ItemGroup>
+
+  <UsingTask TaskName="GenerateSMAPIManifestTask" AssemblyFile="$(ProjectDir)\..\ModManifestBuilder\bin\Debug\netstandard2.0\Leclair.Stardew.ModManifestBuilder.dll" />
+
+  <PropertyGroup>
+    <ManifestName Condition="'$(ManifestName)' == ''">manifest.json</ManifestName>
+    <BaseManifest Condition="'$(BaseManifest)' == ''">$(ManifestName)</BaseManifest>
+    <Version_AppendConfiguration Condition="'$(Version_AppendConfiguration)' == ''">true</Version_AppendConfiguration>
+  </PropertyGroup>
+
+  <Target Name="BuildManifest" BeforeTargets="AfterBuild">
+    <GenerateSMAPIManifestTask Name="$(Name)" Version="$(Version)" UniqueId="$(UniqueId)" Author="$(Author)" Description="$(Description)" MinimumApiVersion="$(MinimumApiVersion)" UpdateKeys="$(UpdateKeys)" AssemblyName="$(AssemblyName)" ProjectDir="$(ProjectDir)" ManifestName="$(ManifestName)" BaseManifest="$(BaseManifest)" Configuration="$(Configuration)" Version_AppendConfiguration="$(Version_AppendConfiguration)" />
+  </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties manifest_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+  
+</Project>

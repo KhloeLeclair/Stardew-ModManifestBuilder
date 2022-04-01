@@ -1,0 +1,10 @@
+{
+  "EntryDll": "Leclair.Stardew.TestMod.dll",
+  "Name": "Leclair.Stardew.TestMod",
+  "Version": "1.2.0-Debug",
+  "UniqueId": "Leclair.Stardew.TestMod",
+  "UpdateKeys": [
+    "NexusMods:1234",
+    "ModDrop:57718"
+  ]
+}
