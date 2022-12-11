@@ -1,23 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>TestMod</AssemblyName>
-    <BaseManifest>new</BaseManifest>
+    <AssemblyName>TestModTwo</AssemblyName>
 
-    <UniqueId>Leclair.Stardew.TestMod</UniqueId>
-    <Name>Test Mod</Name>
+    <UniqueId>Leclair.Stardew.TestModTwo</UniqueId>
+    <Name>Test Mod Two</Name>
     <Authors>Khloe Leclair</Authors>
-    <Description>Some mod for testing.</Description>
-    <Version>1.2.0</Version>
-    <UpdateKeys>NexusMods:1234;ModDrop:1234,github:myrepo,chucklefish:hi,updatemanifest:manifest.json</UpdateKeys>
-    <MinimumApiVersion>auto</MinimumApiVersion>
-    <EnableGMCM>true</EnableGMCM>
+    <Description>Another mod for testing.</Description>
+    <Version>1.0.0</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <SMAPIDependency Include="spacechase0.SpaceCore" Version="1.10" Required="true" Reference="true" />
-    <SMAPIDependency Condition="$(EnableGMCM)" Include="spacechase0.GenericModConfigMenu" Version="1.9" Required="false" />
-  </ItemGroup>
 
   <!-- build config -->
   <PropertyGroup>
@@ -46,10 +37,9 @@
   <!-- references -->
   <ItemGroup>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.0.2" />
-    <Reference Include="DynamicGameAssets">
-      <HintPath>$(GameModsPath)\DynamicGameAssets\DynamicGameAssets.dll</HintPath>
+    <ProjectReference Include="..\TestMod\TestMod.csproj">
       <Private>false</Private>
-    </Reference>
+    </ProjectReference>
   </ItemGroup>
 
   <!-- Import the ModManifestBuilder directly for development -->

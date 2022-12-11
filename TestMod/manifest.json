@@ -1,10 +1,34 @@
 {
-  "EntryDll": "Leclair.Stardew.TestMod.dll",
-  "Name": "Leclair.Stardew.TestMod",
-  "Version": "1.2.0-Debug",
-  "UniqueId": "Leclair.Stardew.TestMod",
+  "$schema": "https://smapi.io/schemas/manifest.json",
+  "UniqueID": "Leclair.Stardew.TestMod",
+  "Name": "Test Mod",
+  "Author": "Khloe Leclair",
+  "Version": "1.2.0",
+  "Description": "Some mod for testing.",
+  "MinimumApiVersion": "3.17",
+  "EntryDll": "TestMod.dll",
+  "Dependencies": [
+    {
+      "UniqueID": "spacechase0.DynamicGameAssets",
+      "MinimumVersion": "1.4.4",
+      "IsRequired": true
+    },
+    {
+      "UniqueID": "spacechase0.GenericModConfigMenu",
+      "MinimumVersion": "1.9",
+      "IsRequired": false
+    },
+    {
+      "UniqueID": "spacechase0.SpaceCore",
+      "MinimumVersion": "1.10",
+      "IsRequired": true
+    }
+  ],
   "UpdateKeys": [
     "NexusMods:1234",
-    "ModDrop:57718"
+    "ModDrop:1234",
+    "github:myrepo",
+    "chucklefish:hi",
+    "updatemanifest:manifest.json"
   ]
 }

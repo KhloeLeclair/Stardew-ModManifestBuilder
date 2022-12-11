@@ -1,30 +1,61 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <UsingTask TaskName="GenerateSMAPIManifestTask" AssemblyFile="Leclair.Stardew.ModManifestBuilder.dll" />
+	<PropertyGroup>
+		<ModManifestBuilderPath Condition="'$(ModManifestBuilderPath)' == ''">Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
+    <ModManifestBuilderPath Condition="!Exists('$(ModManifestBuilderPath)')">..\bin\Debug\netstandard2.0\$(ModManifestBuilderPath)</ModManifestBuilderPath>
 
-  <PropertyGroup>
-    <ManifestName Condition="'$(ManifestName)' == ''">manifest.json</ManifestName>
-    <BaseManifest Condition="'$(BaseManifest)' == ''">$(ManifestName)</BaseManifest>
-    <Version_AppendConfiguration Condition="'$(Version_AppendConfiguration)' == ''">true</Version_AppendConfiguration>
-  </PropertyGroup>
-  
-  <Target Name="BuildManifest" BeforeTargets="AfterBuild">
-    <GenerateSMAPIManifestTask
-      Name="$(Name)"
-      Version="$(Version)"
-      UniqueId="$(UniqueId)"
-      Author="$(Author)"
-      Description="$(Description)"
-      MinimumApiVersion="$(MinimumApiVersion)"
-      UpdateKeys="$(UpdateKeys)"
+		<ManifestName Condition="'$(ManifestName)' == ''">manifest.json</ManifestName>
+		<BaseManifest Condition="'$(BaseManifest)' == ''">$(ManifestName)</BaseManifest>
+		<AlwaysSetEntryDll Condition="'$(AlwaysSetEntryDll)' == ''">true</AlwaysSetEntryDll>
+		<Version_AppendConfiguration Condition="'$(Version_AppendConfiguration)' == ''">true</Version_AppendConfiguration>
+		<MinimumApiVersion_Behavior Condition="'$(MinimumApiVersion_Behavior)' == ''">warning</MinimumApiVersion_Behavior>
+		<Dependencies_VersionBehavior Condition="'$(Dependencies_VersionBehavior)' == ''">warning</Dependencies_VersionBehavior>
+	</PropertyGroup>
 
-      AssemblyName="$(AssemblyName)"
-      ProjectDir="$(ProjectDir)"
-      ManifestName="$(ManifestName)"
-      BaseManifest="$(BaseManifest)"
-      Configuration="$(Configuration)"
-      Version_AppendConfiguration="$(Version_AppendConfiguration)"
-    />
-  </Target>
- 
+	<UsingTask TaskName="GenerateSMAPIManifestTask" AssemblyFile="$(ModManifestBuilderPath)" />
+	<UsingTask TaskName="AddSMAPIDependencyReferencesTask" AssemblyFile="$(ModManifestBuilderPath)" />
+
+	<Target Name="AddModReferences" BeforeTargets="ResolveAssemblyReferences">
+		<AddSMAPIDependencyReferencesTask
+			Dependencies="@(SMAPIDependency)"
+			ModsPath="$(GameModsPath)"
+		>
+			<Output
+				TaskParameter="ResolvedReferences"
+				ItemName="_SMAPIModReferences"
+			/>
+		</AddSMAPIDependencyReferencesTask>
+
+		<ItemGroup>
+			<Reference Include="@(_SMAPIModReferences)" />
+		</ItemGroup>
+	</Target>
+	
+	<Target Name="BuildManifest" BeforeTargets="AfterBuild">
+		<GenerateSMAPIManifestTask
+			Name="$(Name)"
+			Version="$(Version)"
+			UniqueId="$(UniqueId)"
+			Author="$(Author)"
+			Authors="$(Authors)"
+			Description="$(Description)"
+			MinimumApiVersion="$(MinimumApiVersion)"
+			UpdateKeys="$(UpdateKeys)"
+			References="@(ReferencePathWithRefAssemblies);@(ReferenceDependencyPaths)"
+			Dependencies="@(SMAPIDependency)"
+
+			AssemblyName="$(AssemblyName)"
+			ProjectDir="$(ProjectDir)"
+			ManifestName="$(ManifestName)"
+			BaseManifest="$(BaseManifest)"
+			Configuration="$(Configuration)"
+			ModsPath="$(GameModsPath)"
+
+			AlwaysSetEntryDll="$(AlwaysSetEntryDll)"
+			Version_AppendConfiguration="$(Version_AppendConfiguration)"
+			Dependencies_VersionBehavior="$(Dependencies_VersionBehavior)"
+			MinimumApiVersion_Behavior="$(MinimumApiVersion_Behavior)"
+		/>
+	</Target>
+
 </Project>

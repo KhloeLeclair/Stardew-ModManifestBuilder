@@ -1,0 +1,17 @@
+{
+  "$schema": "https://smapi.io/schemas/manifest.json",
+  "UniqueID": "Leclair.Stardew.TestModTwo",
+  "Name": "Test Mod Two",
+  "Author": "Khloe Leclair",
+  "Version": "1.0.0-Debug",
+  "Description": "Another mod for testing.",
+  "MinimumApiVersion": "3.17",
+  "EntryDll": "TestModTwo.dll",
+  "Dependencies": [
+    {
+      "UniqueID": "Leclair.Stardew.TestMod",
+      "MinimumVersion": "1.2.0-Debug",
+      "IsRequired": true
+    }
+  ]
+}
