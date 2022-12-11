@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<ModManifestBuilderPath Condition="'$(ModManifestBuilderPath)' == ''">Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
-    <ModManifestBuilderPath Condition="!Exists('$(ModManifestBuilderPath)')">..\bin\Debug\netstandard2.0\$(ModManifestBuilderPath)</ModManifestBuilderPath>
 
 		<ManifestName Condition="'$(ManifestName)' == ''">manifest.json</ManifestName>
 		<BaseManifest Condition="'$(BaseManifest)' == ''">$(ManifestName)</BaseManifest>

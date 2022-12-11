@@ -1,5 +1,12 @@
 ## Changelog
 
+### 2.0.1
+Released on December 11th, 2022.
+
+* Fixed an issue where the `.targets` file could not find the task DLL.
+  (Apparently search paths work differently in release...?)
+
+
 ### 2.0.0
 Released on December 11th, 2022.
 

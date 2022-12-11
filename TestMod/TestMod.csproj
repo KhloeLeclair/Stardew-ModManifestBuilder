@@ -53,6 +53,11 @@
   </ItemGroup>
 
   <!-- Import the ModManifestBuilder directly for development -->
+  <!-- We need to set a different path because reasons. -->
+  <PropertyGroup>
+    <ModManifestBuilderPath>..\bin\Debug\netstandard2.0\Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
+  </PropertyGroup>
+  
   <Import Project="..\ModManifestBuilder\assets\package.targets" />
 
 </Project>
