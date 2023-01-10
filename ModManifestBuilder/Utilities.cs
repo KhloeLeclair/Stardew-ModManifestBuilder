@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -140,6 +141,15 @@ public static class Utilities {
 		return false;
 	}
 
+	public static bool TryParseEnum<TEnum>(this string? input, out TEnum result) where TEnum : struct {
+		if (string.IsNullOrWhiteSpace(input)) {
+			result = default;
+			return false;
+		}
+
+		return Enum.TryParse<TEnum>(input!, true, out result);
+	}
+
 	public static bool TryParseBoolean(this string? input, out bool result) {
 		if (input is null) {
 			result = false;
@@ -149,34 +159,31 @@ public static class Utilities {
 		return bool.TryParse(input, out result);
 	}
 
-	public static void LogAddRef(this TaskLoggingHelper log, LogLevel level, string message, params object[] messageArgs) {
+	public static void LogAddRef(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line = 0, int col = 0) {
 		message = $"{ADD_REF_PREFIX} {message}";
 
-		if (level == LogLevel.Trace)
-			log.LogMessage(MessageImportance.Low, message, messageArgs);
-		if (level == LogLevel.Debug)
-			log.LogMessage(MessageImportance.Normal, message, messageArgs);
-		if (level == LogLevel.Info)
-			log.LogMessage(MessageImportance.High, message, messageArgs);
-		else if (level == LogLevel.Warning)
-			log.LogWarning(message, messageArgs);
-		else if (level == LogLevel.Error)
-			log.LogError(message, messageArgs);
+		Log(log, level, message, file, line, col);
 	}
 
-	public static void Log(this TaskLoggingHelper log, LogLevel level, string message, params object[] messageArgs) {
+	public static void LogGen(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line = 0, int col = 0) {
 		message = $"{LOG_PREFIX} {message}";
 
+		Log(log, level, message, file, line, col);
+	}
+
+	public static void Log(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line=0, int col=0) {
+
+
 		if (level == LogLevel.Trace)
-			log.LogMessage(MessageImportance.Low, message, messageArgs);
+			log.LogMessage(null, null, null, file, line, col, 0, 0, MessageImportance.Low, message);
 		if (level == LogLevel.Debug)
-			log.LogMessage(MessageImportance.Normal, message, messageArgs);
+			log.LogMessage(null, null, null, file, line, col, 0, 0, MessageImportance.Normal, message);
 		if (level == LogLevel.Info)
-			log.LogMessage(MessageImportance.High, message, messageArgs);
+			log.LogMessage(null, null, null, file, line, col, 0, 0, MessageImportance.High, message);
 		else if (level == LogLevel.Warning)
-			log.LogWarning(message, messageArgs);
+			log.LogWarning(null, null, null, file, line, col, 0, 0, message);
 		else if (level == LogLevel.Error)
-			log.LogError(message, messageArgs);
+			log.LogError(null, null, null, file, line, col, 0, 0, message);
 	}
 
 	public static Lazy<TEnum> GetEnumReader<TEnum>(Func<string?> input, TEnum defaultValue, TEnum? errorValue = null, TaskLoggingHelper? log = null) where TEnum : struct {
@@ -189,11 +196,120 @@ public static class Utilities {
 			if (Enum.TryParse<TEnum>(value, true, out TEnum result))
 				return result;
 
-			log?.Log(LogLevel.Error, $"Unable to parse value '{value}' for type {typeof(TEnum).Name}");
+			log?.LogGen(LogLevel.Error, $"Unable to parse value '{value}' for type {typeof(TEnum).Name}");
 			return errorValue ?? defaultValue;
 		}
 
 		return new Lazy<TEnum>(Reader);
+	}
+
+	public static string[] GetSMAPIAssemblies(string? gamePath) {
+		string? path = string.IsNullOrEmpty(gamePath) ? null : Path.Combine(gamePath, "smapi-internal");
+		if (string.IsNullOrEmpty(path) || !Directory.Exists(path!))
+			return Array.Empty<string>();
+
+		List<string> result = new();
+
+		foreach(string file in Directory.EnumerateFiles(path!)) {
+			string ext = Path.GetExtension(file);
+			switch(ext) {
+				case ".dll":
+				case ".exe":
+					break;
+				default:
+					continue;
+			}
+
+			string fname = Path.GetFileNameWithoutExtension(file);
+			if (!string.IsNullOrWhiteSpace(fname))
+				result.Add(fname);
+		}
+
+		return result.ToArray();
+	}
+
+	public static string[] GetGameAssemblies(string? gamePath) {
+		return new string[] {
+			"BmFont",
+			"FAudio-CS",
+			"GalaxyCSharp",
+			"GalaxyCSharpGlue",
+			"Lidgren.Network",
+			"MonoGame.Framework",
+			"SkiaSharp",
+			"Stardew Valley",
+			"StardewValley.GameData",
+			"Steamworks.NET",
+			"TextCopy",
+			"xTile"
+		};
+	}
+
+	public static Dictionary<string, (ModManifest, SemanticVersion)> DiscoverMods(string? modsPath) {
+		Dictionary<string, (ModManifest, SemanticVersion)> result = new();
+		if (string.IsNullOrEmpty(modsPath) || ! Directory.Exists(modsPath))
+			return result;
+
+		bool OnFound(string path, ModManifest manifest, SemanticVersion version) {
+			if (!result.ContainsKey(manifest.UniqueID!))
+				result[manifest.UniqueID!] = (manifest, version);
+
+			// Return true to keep iterating.
+			return true;
+		}
+
+		RecursivelyFindMods(modsPath!, OnFound, checkManifest: false);
+
+		return result;
+	}
+
+	public delegate bool FoundModDelegate(string path, ModManifest manifest, SemanticVersion version);
+
+	public static bool RecursivelyFindMods(string path, FoundModDelegate onFound, bool checkManifest = true) {
+
+		if (checkManifest) {
+			string manifestFile = Path.Combine(path, "manifest.json");
+
+			// If there's a manifest here, consume it.
+			if (File.Exists(manifestFile))
+				return TryConsumeMod(path, manifestFile, onFound);
+		}
+
+		foreach(string dir in Directory.EnumerateDirectories(path)) {
+			string name = Path.GetFileName(dir);
+
+			// Skip directories starting with a "."
+			if (name is null || name.StartsWith("."))
+				continue;
+
+			// If we return false, to stop iterating, then stop here.
+			if (!RecursivelyFindMods(dir, onFound, checkManifest: true))
+				return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryConsumeMod(string path, string manifestFile, FoundModDelegate onFound) {
+		ModManifest manifest;
+		try {
+			manifest = JsonConvert.DeserializeObject<ModManifest>(File.ReadAllText(manifestFile));
+		} catch {
+			return true;
+		}
+
+		if (manifest?.UniqueID is null)
+			return true;
+
+		if (!SemanticVersion.TryParse(manifest.Version, out var modVer) || modVer is null) {
+			return true;
+		}
+
+		try {
+			return onFound(path, manifest, modVer);
+		} catch {
+			return true;
+		}
 	}
 
 	/// <summary>
@@ -205,23 +321,42 @@ public static class Utilities {
 	/// <param name="references">The array of project references to read from.</param>
 	/// <param name="Log">A logging helper we can log messages to.</param>
 	/// <returns>The parsed SMAPI version and a dictionary of mod references</returns>
-	public static (SemanticVersion?, Dictionary<string, (ModManifest, SemanticVersion)>) ParseReferences(ITaskItem[]? references, TaskLoggingHelper Log) {
+	public static (SemanticVersion?, Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)>) ParseReferences(ITaskItem[]? references, string? gamePath, TaskLoggingHelper Log) {
 		SemanticVersion? smapiVersion = null;
-		Dictionary<string, (ModManifest, SemanticVersion)> modReferences = new();
+		Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)> modReferences = new();
 
-		if (references is not null)
+		if (references is not null) {
+			string[] smapiAssemblies = GetSMAPIAssemblies(gamePath);
+			string[] gameAssemblies = GetGameAssemblies(gamePath);
+
 			foreach (var reference in references) {
+				if (TryParseBoolean(reference.GetMetadata("SMAPIDependency_Exclude"), out bool excl) && excl) {
+					Log.LogGen(LogLevel.Debug, $"Skipping reference '{reference.ItemSpec}' with dependency exclusion flag.");
+					continue;
+				}
+
 				// Instead of checking the filename, get the assembly name from
 				// FusionName to better check if we find SMAPI or not.
-				reference
-					.GetMetadata("FusionName")
-					.TryParseAssemblyName(out AssemblyName? an);
+				TryParseAssemblyName(reference.GetMetadata("FusionName"), out AssemblyName? an);
+
+				if (an?.Name is not null) {
+					int match = -1;
+					if (smapiAssemblies.Contains(an.Name))
+						match = 0;
+					else if (gameAssemblies.Contains(an.Name))
+						match = 1;
+
+					if (match != -1 && (!reference.GetMetadata("Private").TryParseBoolean(out bool isPrivate) || isPrivate)) {
+						string source = match == 0 ? "SMAPI" : "the game";
+						Log.LogGen(LogLevel.Warning, $"Reference to '{an.Name}', which is provided by {source}, does not have <Private> set to \"false\" and may be included in the build output.");
+					}
+				}
 
 				// Is it SMAPI?
 				if (an?.Name == "StardewModdingAPI") {
 					// If we already have a version, then this is weird.
 					if (smapiVersion != null) {
-						Log.Log(LogLevel.Warning, "Project has more than one reference to StardewModdingAPI.");
+						Log.LogGen(LogLevel.Warning, "Project has more than one reference to StardewModdingAPI.");
 						continue;
 					}
 
@@ -230,20 +365,20 @@ public static class Utilities {
 					try {
 						FileVersionInfo fv = FileVersionInfo.GetVersionInfo(reference.ItemSpec);
 						smapiVersion = new SemanticVersion(fv.ProductVersion);
-					} catch(Exception ex) {
-						Log.Log(LogLevel.Warning, $"Unable to parse SMAPI version normally. Using fall back method. Error: {ex}");
+					} catch (Exception ex) {
+						Log.LogGen(LogLevel.Warning, $"Unable to parse SMAPI version normally. Using fall back method. Error: {ex}");
 						smapiVersion = new SemanticVersion(an.Version);
 					}
 
 					// Log a warning if we're building against a version of
 					// SMAPI with a release tag. This likely means we're
 					// building against an alpha or beta release.
-					if (!string.IsNullOrWhiteSpace(smapiVersion.Release))
-						Log.Log(LogLevel.Warning, $"The referenced version of SMAPI ('{smapiVersion}') is not a standard release.");
+					if (!string.IsNullOrWhiteSpace(smapiVersion.Prerelease))
+						Log.LogGen(LogLevel.Warning, $"The referenced version of SMAPI ('{smapiVersion}') is not a standard release.");
 
 					// Check to ensure that the SMAPI reference is not <Private>.
-					if (! reference.GetMetadata("Private").TryParseBoolean(out bool isPrivate) || isPrivate)
-						Log.Log(LogLevel.Warning, "Reference to SMAPI does not have <Private> set to \"false\" and will be included in the build output.");
+					if (!reference.GetMetadata("Private").TryParseBoolean(out bool isPrivate) || isPrivate)
+						Log.LogGen(LogLevel.Warning, "Reference to SMAPI does not have <Private> set to \"false\" and will be included in the build output.");
 
 					continue;
 				}
@@ -276,14 +411,21 @@ public static class Utilities {
 				// version, track it.
 				string refFile = Path.GetFileName(reference.ItemSpec);
 				if (manifest?.EntryDll != null && manifest.EntryDll.Equals(refFile, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(manifest.UniqueID) && SemanticVersion.TryParse(manifest.Version, out var version)) {
-					Log.Log(LogLevel.Debug, $"Found reference to mod '{manifest.UniqueID}' with version {version}.");
-					modReferences[manifest.UniqueID!] = (manifest, version!);
+					VersionBehavior? behavior = TryParseEnum(reference.GetMetadata("SMAPIDependency_VersionBehavior"), out VersionBehavior bhv)
+						? bhv : null;
+
+					if (!behavior.HasValue && TryParseEnum(reference.GetMetadata("VersionBehavior"), out bhv))
+						behavior = bhv;
+
+					Log.LogGen(LogLevel.Info, $"Found reference to mod '{manifest.UniqueID}' with version {version} (version behavior: {behavior}).");
+					modReferences[manifest.UniqueID!] = (manifest, version!, behavior);
 
 					// Check to ensure that the mod reference is not <Private>.
 					if (!reference.GetMetadata("Private").TryParseBoolean(out bool isPrivate) || isPrivate)
-						Log.Log(LogLevel.Warning, $"Reference to mod '{manifest.UniqueID}' does not have <Private> set to \"false\" and will be included in the build output.");
+						Log.LogGen(LogLevel.Warning, $"Reference to mod '{manifest.UniqueID}' does not have <Private> set to \"false\" and will be included in the build output.");
 				}
 			}
+		}
 
 		return (smapiVersion, modReferences);
 	}

@@ -220,7 +220,7 @@ manifest does not already contain a value for `EntryDll`.
 
 Default: `true`
 
-*New in 2.0*
+*Added in 2.0*
 
 </td>
 </tr>
@@ -244,6 +244,26 @@ and the manifest will be built from scratch.
 </td>
 </tr>
 <tr>
+<td><code>&lt;Dependencies_AlwaysIncludeRequire&gt;</code></td>
+<td>
+
+When this is enabled, dependencies in the generated manifest will have
+their `IsRequired` values included and set to `true` when a dependency
+is required.
+
+As dependencies are considered required by default, we usually leave
+out `IsRequired` when possible for brevity. 
+
+> **Note:** If a dependency is optional, its `IsRequired` value will
+> *always* be included, and set to `false`.
+
+Default: `false`
+
+*Added in 2.1*
+
+</td>
+</tr>
+<tr>
 <td><code>&lt;Dependencies_VersionBehavior&gt;</code></td>
 <td>
 
@@ -252,7 +272,8 @@ This value controls how version checking is handled for
 `<MinimumApiVersion_Behavior>`.
 
 > At this time, dependency versions are *only* checked for mods that your
-> project has a reference to.
+> project has a reference to or that have an associated `<SMAPIDependency />`
+> entry within the project file.
 
 When this value is `Update` or `UpdateFull`, and the `"MinimumVersion"` field
 of a dependency is an older version than the version of the mod your project
@@ -270,6 +291,26 @@ Default: `UpdateFull`
 </td>
 </tr>
 <tr>
+<td><code>&lt;ManifestComment&gt;</code></td>
+<td>
+
+When this is enabled, a comment will be included in the generated manifest file
+indicating that the file is generated/updated automatically and that it should
+not be modified directly.
+
+If you expect to need to parse the manifest using a strict JSON parser that
+does not allow comments, then this should be disabled.
+
+SMAPI allows comments in JSON files, so leaving them enabled will not present
+any issue using the resulting manifest with SMAPI.
+
+Default: `true`
+
+*Added in 2.1*
+
+</td>
+</tr>
+<tr>
 <td><code>&lt;ManifestName&gt;</code></td>
 <td>
 
@@ -282,6 +323,28 @@ You should not change this unless you have build steps that copy the file to
 </td>
 </tr>
 <tr>
+<td><code>&lt;ManifestSchema&gt;</code></td>
+<td>
+
+When this is enabled, a `"$schema"` value will be included in the generated
+manifest. By default, if enabled, the schema will be set to the standard
+SMAPI manifest schema provided at: https://smapi.io/schemas/manifest.json
+
+You can also set this to a custom URL, and the schema will be set to use
+that URL instead.
+
+> You may wish to use a custom schema if your manifest includes additional
+> properties that are not part of the base manifest schema. While SMAPI
+> allows manifests to include additional properties, the provided schema
+> does not in an effort to protect developers from typos.
+
+Default: `false`
+
+*Added in 2.1*
+
+</td>
+</tr>
+<tr>
 <td><code>&lt;MinimumApiVersion_Behavior&gt;</close></td>
 <td>
 
@@ -290,7 +353,18 @@ section above for details on how this value functions.
 
 Default: `Warning`
 
-*New in 2.0*
+*Added in 2.0*
+
+</td>
+</tr>
+<tr>
+<td><code>&lt;References_VersionBehavior&gt;</code></td>
+<td>
+
+This optional value is similar to `<Dependencies_VersionBehavior>` but applies
+specifically to mods that your mod references.
+
+*Added in 2.1*
 
 </td>
 </tr>
@@ -332,12 +406,16 @@ from the discovered manifest and ensures that:
 3. The `MinimumVersion` is set appropriately, as controlled by
    `<Dependencies_VersionBehavior>`.
 
+> You can override the `VersionBehavior` of a specific reference by setting
+> a `SMAPIDependency_VersionBehavior` on the reference.
+
 As an example, assume you have a reference like this in your mod:
 
 ```xml
 <Reference Include="DynamicGameAssets">
     <HintPath>$(GameModsPath)\DynamicGameAssets\DynamicGameAssets.dll</HintPath>
     <Private>false</Private>
+    <SMAPIDependency_VersionBehavior>Update</SMAPIDependency_VersionBehavior>
 </Reference>
 ```
 
@@ -433,6 +511,18 @@ minimum version of the mod that your project supports.
 
 > Note: This may be set automatically if your project has a reference to
 > this mod.
+
+</td>
+</tr>
+<tr>
+<td><code>VersionBehavior</code></td>
+<td>
+
+Optional enum value. Setting a `VersionBehavior` on a specific
+`<SMAPIDependency>` tag allows you to customize the version behavior applied
+for that specific dependency.
+
+*Added in 2.1*
 
 </td>
 </tr>

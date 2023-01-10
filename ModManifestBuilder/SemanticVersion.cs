@@ -14,7 +14,7 @@ namespace Leclair.Stardew.ModManifestBuilder {
 
 		public int Revision { get; }
 
-		public string? Release { get; set; }
+		public string? Prerelease { get; set; }
 
 		public string? Build { get; }
 
@@ -23,7 +23,7 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			Minor = minor;
 			Patch = patch;
 			Revision = revision;
-			Release = release;
+			Prerelease = release;
 			Build = build;
 		}
 
@@ -43,14 +43,14 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			Minor = minor;
 			Patch = patch;
 			Revision = revision;
-			Release = release;
+			Prerelease = release;
 			Build = build;
 		}
 
 		public int CompareTo(SemanticVersion? other, bool onlyMajorMinor = false) {
 			return other == null
 				? 1
-				: CompareTo(other.Major, other.Minor, other.Patch, other.Revision, other.Release, other.Build, onlyMajorMinor);
+				: CompareTo(other.Major, other.Minor, other.Patch, other.Revision, other.Prerelease, other.Build, onlyMajorMinor);
 		}
 
 		public bool Equals(SemanticVersion? other) {
@@ -70,17 +70,24 @@ namespace Leclair.Stardew.ModManifestBuilder {
 		}
 
 		public string ToShortString() {
-			if (string.IsNullOrEmpty(Release))
+			if (string.IsNullOrEmpty(Prerelease))
 				return $"{Major}.{Minor}";
 			return ToString();
+		}
+
+		public string ToNoPrereleaseString() {
+			string version = $"{Major}.{Minor}.{Patch}";
+			if (Revision != 0)
+				version += $".{Revision}";
+			return version;
 		}
 
 		public override string ToString() {
 			string version = $"{Major}.{Minor}.{Patch}";
 			if (Revision != 0)
 				version += $".{Revision}";
-			if (!string.IsNullOrEmpty(Release))
-				version += $"-{Release}";
+			if (!string.IsNullOrEmpty(Prerelease))
+				version += $"-{Prerelease}";
 			if (!string.IsNullOrEmpty(Build))
 				version += $"+{Build}";
 			return version;
@@ -107,8 +114,8 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			return 0;
 		}
 
-		private int CompareToInternal(int major, int minor, int patch, int revision, string? release, string? build, bool onlyMajorMinor) {
-			if (onlyMajorMinor && (!string.IsNullOrWhiteSpace(Release) || !string.IsNullOrWhiteSpace(release)))
+		private int CompareToInternal(int major, int minor, int patch, int revision, string? prerelease, string? build, bool onlyMajorMinor) {
+			if (onlyMajorMinor && (!string.IsNullOrWhiteSpace(Prerelease) || !string.IsNullOrWhiteSpace(prerelease)))
 				onlyMajorMinor = false;
 
 			if (Major != major)
@@ -120,15 +127,46 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			if (Revision != revision && !onlyMajorMinor)
 				return Revision.CompareTo(revision);
 
-			if (Release == release)
+			if (Prerelease == prerelease)
 				return 0;
 
-			if (string.IsNullOrWhiteSpace(Release))
+			if (string.IsNullOrWhiteSpace(Prerelease))
 				return 1;
-			if (string.IsNullOrWhiteSpace(release))
+			if (string.IsNullOrWhiteSpace(prerelease))
 				return -1;
 
-			// Unlike SMAPI, we don't care about parsing the release tag.
+			string[] parts = Prerelease?.Split('.', '-') ?? Array.Empty<string>();
+			string[] other = prerelease?.Split('.', '-') ?? Array.Empty<string>();
+
+			if (parts.Length < other.Length)
+				return -1;
+			if (parts.Length > other.Length)
+				return 1;
+
+			int length = parts.Length;
+			for(int i = 0; i < length; i++) {
+
+				string ours = parts[i];
+				string theirs = other[i];
+
+				if (ours.Equals(theirs, StringComparison.OrdinalIgnoreCase)) { 
+					if (i == length - 1)
+						return 0;
+					continue;
+				}
+
+				if (theirs.Equals("unofficial", StringComparison.OrdinalIgnoreCase))
+					return 1;
+				if (ours.Equals("unofficial", StringComparison.OrdinalIgnoreCase))
+					return -1;
+
+				if (int.TryParse(ours, out int ourInt) && int.TryParse(theirs, out int theirInt))
+					return ourInt.CompareTo(theirInt);
+
+				return string.Compare(ours, theirs, StringComparison.OrdinalIgnoreCase);
+			}
+
+			// ???
 			return 0;
 		}
 

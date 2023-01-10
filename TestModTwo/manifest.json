@@ -1,4 +1,10 @@
 {
+  /*
+   | This file is automatically updated by ModManifestBuilder
+   | when the project is compiled.
+   | 
+   | Changes made to this file may be overwritten.
+   */
   "$schema": "https://smapi.io/schemas/manifest.json",
   "UniqueID": "Leclair.Stardew.TestModTwo",
   "Name": "Test Mod Two",
@@ -10,8 +16,7 @@
   "Dependencies": [
     {
       "UniqueID": "Leclair.Stardew.TestMod",
-      "MinimumVersion": "1.2.0-Debug",
-      "IsRequired": true
+      "MinimumVersion": "1.2"
     }
   ]
 }

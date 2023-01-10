@@ -9,6 +9,9 @@
 		<Version_AppendConfiguration Condition="'$(Version_AppendConfiguration)' == ''">true</Version_AppendConfiguration>
 		<MinimumApiVersion_Behavior Condition="'$(MinimumApiVersion_Behavior)' == ''">warning</MinimumApiVersion_Behavior>
 		<Dependencies_VersionBehavior Condition="'$(Dependencies_VersionBehavior)' == ''">warning</Dependencies_VersionBehavior>
+		<Dependencies_AlwaysIncludeRequired Condition="'$(Dependencies_AlwaysIncludeRequired)' == ''">false</Dependencies_AlwaysIncludeRequired>
+		<ManifestComment Condition="'$(ManifestComment)' == ''">true</ManifestComment>
+		<ManifestSchema Condition="'$(ManifestSchema)' == ''">true</ManifestSchema>
 	</PropertyGroup>
 
 	<UsingTask TaskName="GenerateSMAPIManifestTask" AssemblyFile="$(ModManifestBuilderPath)" />
@@ -18,6 +21,7 @@
 		<AddSMAPIDependencyReferencesTask
 			Dependencies="@(SMAPIDependency)"
 			ModsPath="$(GameModsPath)"
+			ProjectPath="$(MSBuildProjectFullPath)"
 		>
 			<Output
 				TaskParameter="ResolvedReferences"
@@ -48,12 +52,17 @@
 			ManifestName="$(ManifestName)"
 			BaseManifest="$(BaseManifest)"
 			Configuration="$(Configuration)"
+			GamePath="$(GamePath)"
 			ModsPath="$(GameModsPath)"
+			ProjectPath="$(MSBuildProjectFullPath)"
 
 			AlwaysSetEntryDll="$(AlwaysSetEntryDll)"
-			Version_AppendConfiguration="$(Version_AppendConfiguration)"
+			Dependencies_AlwaysIncludeRequired="$(Dependencies_AlwaysIncludeRequired)"
 			Dependencies_VersionBehavior="$(Dependencies_VersionBehavior)"
+			ManifestComment="$(ManifestComment)"
+			ManifestSchema="$(ManifestSchema)"
 			MinimumApiVersion_Behavior="$(MinimumApiVersion_Behavior)"
+			Version_AppendConfiguration="$(Version_AppendConfiguration)"
 		/>
 	</Target>
 

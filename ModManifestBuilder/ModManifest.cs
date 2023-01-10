@@ -11,6 +11,9 @@ public class ModManifest {
 	[JsonProperty("$schema")]
 	public string? JsonSchema { get; set; }
 
+	[JsonProperty("$comment")]
+	public object? JsonComment { get; set; }
+
 	public string? UniqueID { get; set; }
 
 	public string? Name { get; set; }

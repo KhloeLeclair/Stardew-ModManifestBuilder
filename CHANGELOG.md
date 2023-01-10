@@ -1,5 +1,29 @@
 ## Changelog
 
+### 2.1.0
+Released on January 10th, 2023.
+
+This was finished a while ago, but work and holidays pulled me away. Here's
+the release, finally. This release adds more control over dependency and
+reference version behavior.
+
+* Added a check for references to game / SMAPI assemblies that do not have
+  `Private` set appropriately, causing them to potentially be bundled with
+  your build output. While Mod Build Config is likely to handle such
+  references appropriately, it's still sloppy.
+* Added the `<ManifestComment>` property to control whether or not a comment
+  is included in generated manifest files.
+* Added the `<ManifestSchema>` property to control the `"$schema"` property
+  included in generated manifest files.
+* Added the `<References_VersionBehavior>` property to control the version
+  behavior for referenced mods specifically.
+* Added the ability to set `VersionBehavior` metadata on `<SMAPIDependency />`
+  tags to override the version behavior for specific dependencies.
+* Added the ability to set `SMAPIDependency_VersionBehavior` metadata on
+  other references to dependencies to override the version behavior for
+  those dependencies.
+
+
 ### 2.0.1
 Released on December 11th, 2022.
 
