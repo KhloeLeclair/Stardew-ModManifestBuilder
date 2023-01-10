@@ -338,7 +338,7 @@ that URL instead.
 > allows manifests to include additional properties, the provided schema
 > does not in an effort to protect developers from typos.
 
-Default: `false`
+Default: `true`
 
 *Added in 2.1*
 
