@@ -364,9 +364,7 @@ your project.
 This can be used with a condition to only enable errors when building for
 release by including a line like this in your project file:
 
-```xml
-<ManifestWarningsAsErrors Condition="$(Configuration) == 'Release'">true</ManifestWarningsAsErrors>
-```
+`<ManifestWarningsAsErrors Condition="$(Configuration) == 'Release'">true</ManifestWarningsAsErrors>`
 
 Default: `false`
 
