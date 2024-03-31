@@ -4,6 +4,7 @@
    | when the project is compiled.
    | 
    | Changes made to this file may be overwritten.
+   | 
    */
   "$schema": "https://smapi.io/schemas/manifest.json",
   "UniqueID": "Leclair.Stardew.TestModTwo",
@@ -16,7 +17,7 @@
   "Dependencies": [
     {
       "UniqueID": "Leclair.Stardew.TestMod",
-      "MinimumVersion": "1.2"
+      "MinimumVersion": "1.2.0"
     }
   ]
 }

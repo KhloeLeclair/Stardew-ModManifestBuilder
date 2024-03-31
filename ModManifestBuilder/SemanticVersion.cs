@@ -47,26 +47,26 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			Build = build;
 		}
 
-		public int CompareTo(SemanticVersion? other, bool onlyMajorMinor = false) {
+		public int CompareTo(SemanticVersion? other, bool onlyMajorMinor = false, bool skipPrerelease = false) {
 			return other == null
 				? 1
-				: CompareTo(other.Major, other.Minor, other.Patch, other.Revision, other.Prerelease, other.Build, onlyMajorMinor);
+				: CompareTo(other.Major, other.Minor, other.Patch, other.Revision, other.Prerelease, other.Build, onlyMajorMinor, skipPrerelease);
 		}
 
 		public bool Equals(SemanticVersion? other) {
 			return other != null && CompareTo(other) == 0;
 		}
 
-		public bool IsOlderThan(SemanticVersion? other, bool onlyMajorMinor = false) {
-			return CompareTo(other, onlyMajorMinor) < 0;
+		public bool IsOlderThan(SemanticVersion? other, bool onlyMajorMinor = false, bool skipPrerelease = false) {
+			return CompareTo(other, onlyMajorMinor, skipPrerelease) < 0;
 		}
 
-		public bool IsNewerThan(SemanticVersion? other, bool onlyMajorMinor = false) {
-			return CompareTo(other, onlyMajorMinor) > 0;
+		public bool IsNewerThan(SemanticVersion? other, bool onlyMajorMinor = false, bool skipPrerelease = false) {
+			return CompareTo(other, onlyMajorMinor, skipPrerelease) > 0;
 		}
 
-		public bool IsBetween(SemanticVersion? min, SemanticVersion? max, bool onlyMajorMinor = false) {
-			return CompareTo(min, onlyMajorMinor) >= 0 && CompareTo(max, onlyMajorMinor) <= 0;
+		public bool IsBetween(SemanticVersion? min, SemanticVersion? max, bool onlyMajorMinor = false, bool skipPrerelease = false) {
+			return CompareTo(min, onlyMajorMinor, skipPrerelease) >= 0 && CompareTo(max, onlyMajorMinor, skipPrerelease) <= 0;
 		}
 
 		public string ToShortString() {
@@ -105,8 +105,8 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			return false;
 		}
 
-		public int CompareTo(int major, int minor, int patch, int revision, string? release, string? build, bool onlyMajorMinor = false) {
-			int result = CompareToInternal(major, minor, patch, revision, release, build, onlyMajorMinor);
+		public int CompareTo(int major, int minor, int patch, int revision, string? release, string? build, bool onlyMajorMinor = false, bool skipPrerelease = false) {
+			int result = CompareToInternal(major, minor, patch, revision, release, build, onlyMajorMinor, skipPrerelease);
 			if (result < 0)
 				return -1;
 			if (result > 0)
@@ -114,7 +114,7 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			return 0;
 		}
 
-		private int CompareToInternal(int major, int minor, int patch, int revision, string? prerelease, string? build, bool onlyMajorMinor) {
+		private int CompareToInternal(int major, int minor, int patch, int revision, string? prerelease, string? build, bool onlyMajorMinor, bool skipPrerelease) {
 			if (onlyMajorMinor && (!string.IsNullOrWhiteSpace(Prerelease) || !string.IsNullOrWhiteSpace(prerelease)))
 				onlyMajorMinor = false;
 
@@ -127,7 +127,7 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			if (Revision != revision && !onlyMajorMinor)
 				return Revision.CompareTo(revision);
 
-			if (Prerelease == prerelease)
+			if (Prerelease == prerelease || skipPrerelease)
 				return 0;
 
 			if (string.IsNullOrWhiteSpace(Prerelease))

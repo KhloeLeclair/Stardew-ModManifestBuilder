@@ -24,6 +24,8 @@ public enum LogLevel {
 
 public static class Utilities {
 
+	public static bool ManifestWarningsAsErrors = false;
+
 	public const string LOG_PREFIX = "[generate smapi manifest]";
 	public const string ADD_REF_PREFIX = "[add smapi mod references]";
 
@@ -165,6 +167,7 @@ public static class Utilities {
 		Log(log, level, message, file, line, col);
 	}
 
+
 	public static void LogGen(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line = 0, int col = 0) {
 		message = $"{LOG_PREFIX} {message}";
 
@@ -172,7 +175,8 @@ public static class Utilities {
 	}
 
 	public static void Log(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line=0, int col=0) {
-
+		if (ManifestWarningsAsErrors && level == LogLevel.Warning)
+			level = LogLevel.Error;
 
 		if (level == LogLevel.Trace)
 			log.LogMessage(null, null, null, file, line, col, 0, 0, MessageImportance.Low, message);

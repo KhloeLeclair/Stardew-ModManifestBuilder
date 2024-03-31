@@ -275,9 +275,14 @@ This value controls how version checking is handled for
 > project has a reference to or that have an associated `<SMAPIDependency />`
 > entry within the project file.
 
-When this value is `Update` or `UpdateFull`, and the `"MinimumVersion"` field
+When this value is `Update` or `UpdateFull` and the `"MinimumVersion"` field
 of a dependency is an older version than the version of the mod your project
 is being built against, the minimum version will be updated appropriately.
+
+When this value is `Set`, `SetNoprerelease`, or `SetFull` and the `"MinimumVersion"`
+field of a dependency is different than the version of the mod your project is
+being built against, the minimum version will be set appropriately, even if
+this means setting the minimum version to an older version.
 
 When this value is `Warning` or `Error`, and the `"MinimumVersion"` field
 of a dependency is an older version than the version of the mod your project
@@ -287,6 +292,9 @@ error will be logged instead and your project will fail to build.
 Default: `UpdateFull`
 
 *Added in 2.0*
+
+*Changed in 2.2:*
+- Added the `Set`, `SetFull`, and `SetNoPrerelease` values.
 
 </td>
 </tr>
@@ -341,6 +349,28 @@ that URL instead.
 Default: `true`
 
 *Added in 2.1*
+
+</td>
+</tr>
+<tr>
+<td><code>&lt;ManifestWarningsAsErrors&gt;</code></td>
+<td>
+
+When this is enabled, ModManifestBuilder will emit errors instead of warnings
+for issues it finds with your project. This can be useful as errors prevent
+a build from completing, thus forcing you to fix them before you can release
+your project.
+
+This can be used with a condition to only enable errors when building for
+release by including a line like this in your project file:
+
+```xml
+<ManifestWarningsAsErrors Condition="$(Configuration) == 'Release'">true</ManifestWarningsAsErrors>
+```
+
+Default: `false`
+
+*Added in 2.2*
 
 </td>
 </tr>

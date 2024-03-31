@@ -12,6 +12,7 @@
 		<Dependencies_AlwaysIncludeRequired Condition="'$(Dependencies_AlwaysIncludeRequired)' == ''">false</Dependencies_AlwaysIncludeRequired>
 		<ManifestComment Condition="'$(ManifestComment)' == ''">true</ManifestComment>
 		<ManifestSchema Condition="'$(ManifestSchema)' == ''">true</ManifestSchema>
+		<ManifestWarningsAsErrors Condition="'$(ManifestWarningsAsErrors)' == ''">false</ManifestWarningsAsErrors>
 	</PropertyGroup>
 
 	<UsingTask TaskName="GenerateSMAPIManifestTask" AssemblyFile="$(ModManifestBuilderPath)" />
@@ -61,8 +62,10 @@
 			Dependencies_VersionBehavior="$(Dependencies_VersionBehavior)"
 			ManifestComment="$(ManifestComment)"
 			ManifestSchema="$(ManifestSchema)"
+			ManifestWarningsAsErrors="$(ManifestWarningsAsErrors)"
 			MinimumApiVersion_Behavior="$(MinimumApiVersion_Behavior)"
 			Version_AppendConfiguration="$(Version_AppendConfiguration)"
+			References_VersionBehavior="$(References_VersionBehavior)"
 		/>
 	</Target>
 

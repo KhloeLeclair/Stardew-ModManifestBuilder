@@ -1,5 +1,17 @@
 ## Changelog
 
+### 2.2.0
+Released on March 31st, 2024.
+
+* Added `Set`, `SetNoPrerelease`, and `SetFull` as options for version behaviors,
+  which are capable of setting a minimum version to an *older* version so long as
+  you are building against an older version of a mod.
+* Added the `<ManifestWarningsAsErrors>` property to allow you to receive errors
+  rather than warnings for issues.
+* Added a check for `GitHub` update keys that displays a warning when using an
+  update subkey, as those are documented to not work correctly with `GitHub`.
+
+
 ### 2.1.0
 Released on January 10th, 2023.
 

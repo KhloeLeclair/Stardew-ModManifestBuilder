@@ -4,7 +4,7 @@
 		<!-- NuGet Package -->
 		<PackageId>Leclair.Stardew.ModManifestBuilder</PackageId>
 		<Title>Stardew Mod Manifest Builder</Title>
-		<Version>2.1.0</Version>
+		<Version>2.2.0</Version>
 		<Authors>Khloe Leclair</Authors>
 		<Description>Autogenerate a SMAPI manifest.json based on your project's properties as a build task.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

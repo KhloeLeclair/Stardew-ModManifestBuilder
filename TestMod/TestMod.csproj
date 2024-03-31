@@ -8,8 +8,8 @@
     <Name>Test Mod</Name>
     <Authors>Khloe Leclair</Authors>
     <Description>Some mod for testing.</Description>
-    <Version>1.2.0</Version>
-    <UpdateKeys>NexusMods:1234;ModDrop:1234,github:myrepo,chucklefish:hi,updatemanifest:manifest.json</UpdateKeys>
+    <Version>1.2.0-sdvalpha</Version>
+    <UpdateKeys>NexusMods:1234;ModDrop:1234,github:myrepo,chucklefish:hi,updatemanifest:manifest.json,github:KhloeLeclair/SomethingThatDonTexist@Test</UpdateKeys>
     <MinimumApiVersion>auto</MinimumApiVersion>
     <EnableGMCM>true</EnableGMCM>
   </PropertyGroup>
@@ -24,6 +24,8 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+
+    <ManifestWarningsAsErrors Condition="$(Configuration) == 'Release'">true</ManifestWarningsAsErrors>
   </PropertyGroup>
 
   <!-- paths -->

@@ -20,7 +20,10 @@ public enum VersionBehavior {
 	Error,
 	Update,
 	UpdateNoPrerelease,
-	UpdateFull
+	UpdateFull,
+	Set,
+	SetNoPrerelease,
+	SetFull
 };
 
 /// <summary>
@@ -40,6 +43,8 @@ public class GenerateSMAPIManifestTask : Task {
 	public string? MinimumApiVersion_Behavior { get; set; }
 	public string? References_VersionBehavior { get; set; }
 	public bool Version_AppendConfiguration { get; set; }
+
+	public bool ManifestWarningsAsErrors { get; set; }
 
 	// File Path Stuff
 
@@ -94,6 +99,9 @@ public class GenerateSMAPIManifestTask : Task {
 	#region Execution
 
 	public override bool Execute() {
+		// If this is set, upgrade all our warnings to errors.
+		Utilities.ManifestWarningsAsErrors = ManifestWarningsAsErrors;
+
 		// Parse the <Version>
 		SemanticVersion? SemVersion;
 
@@ -216,25 +224,35 @@ public class GenerateSMAPIManifestTask : Task {
 			Log.LogGen(LogLevel.Error, $"The UniqueID '{manifest.UniqueID}' is not a valid mod ID. IDs must only contain A-Z, 0-9, '_', '.', and '-' characters and must not be empty.");
 
 		// Use <MinimumApiVersion> if it was specified.
-		if (SMAPIVersionBehavior == VersionBehavior.Update) {
-			manifest.MinimumApiVersion = smapiVersion.ToShortString();
-			setFields?.Add(nameof(manifest.MinimumApiVersion));
-		} else if (SMAPIVersionBehavior == VersionBehavior.UpdateNoPrerelease) {
-			manifest.MinimumApiVersion = smapiVersion.ToNoPrereleaseString();
-			setFields?.Add(nameof(manifest.MinimumApiVersion));
-		} else if (SMAPIVersionBehavior == VersionBehavior.UpdateFull) {
-			manifest.MinimumApiVersion = smapiVersion.ToString();
-			setFields?.Add(nameof(manifest.MinimumApiVersion));
-		} else if (!string.IsNullOrWhiteSpace(MinimumApiVersion)) {
-			// If the MinimumApiVersion is "auto", then set it to the SMAPI
-			// version we're building against. This is just an easier way
-			// to set the version behavior to "update".
-			if (MinimumApiVersion!.Equals("auto", StringComparison.OrdinalIgnoreCase) || MinimumApiVersion.Equals("automatic", StringComparison.OrdinalIgnoreCase))
+		switch(SMAPIVersionBehavior) {
+			case VersionBehavior.Update:
+			case VersionBehavior.Set:
 				manifest.MinimumApiVersion = smapiVersion.ToShortString();
-			else
-				manifest.MinimumApiVersion = MinimumApiVersion;
+				setFields?.Add(nameof(manifest.MinimumApiVersion));
+				break;
+			case VersionBehavior.UpdateNoPrerelease:
+			case VersionBehavior.SetNoPrerelease:
+				manifest.MinimumApiVersion = smapiVersion.ToNoPrereleaseString();
+				setFields?.Add(nameof(manifest.MinimumApiVersion));
+				break;
+			case VersionBehavior.UpdateFull:
+			case VersionBehavior.SetFull:
+				manifest.MinimumApiVersion = smapiVersion.ToString();
+				setFields?.Add(nameof(manifest.MinimumApiVersion));
+				break;
+			default:
+				if (!string.IsNullOrWhiteSpace(MinimumApiVersion)) {
+					// If the MinimumApiVersion is "auto", then set it to the SMAPI
+					// version we're building against. This is just an easier way
+					// to set the version behavior to "update".
+					if (MinimumApiVersion!.Equals("auto", StringComparison.OrdinalIgnoreCase) || MinimumApiVersion.Equals("automatic", StringComparison.OrdinalIgnoreCase))
+						manifest.MinimumApiVersion = smapiVersion.ToShortString();
+					else
+						manifest.MinimumApiVersion = MinimumApiVersion;
 
-			setFields?.Add(nameof(manifest.MinimumApiVersion));
+					setFields?.Add(nameof(manifest.MinimumApiVersion));
+				}
+				break;
 		}
 
 		// Validate MinimumApiVersion
@@ -326,12 +344,15 @@ public class GenerateSMAPIManifestTask : Task {
 					};
 
 					switch(behavior) {
+						case VersionBehavior.Set:
 						case VersionBehavior.Update:
 							dep.MinimumVersion = modVer.ToShortString();
 							break;
+						case VersionBehavior.SetNoPrerelease:
 						case VersionBehavior.UpdateNoPrerelease:
 							dep.MinimumVersion = modVer.ToNoPrereleaseString();
 							break;
+						case VersionBehavior.SetFull:
 						case VersionBehavior.UpdateFull:
 							dep.MinimumVersion = modVer.ToString();
 							break;
@@ -351,7 +372,7 @@ public class GenerateSMAPIManifestTask : Task {
 					dep.IsRequired = Dependencies_AlwaysIncludeRequired ? true : null;
 				}
 
-				// Store the appropriate verison checking behavior for later.
+				// Store the appropriate version checking behavior for later.
 				checkBehaviors[modMan.UniqueID!] = behavior;
 			}
 
@@ -381,7 +402,15 @@ public class GenerateSMAPIManifestTask : Task {
 				if (behavior == VersionBehavior.Ignore)
 					continue;
 
-				if (string.IsNullOrEmpty(entry.MinimumVersion) || !SemanticVersion.TryParse(entry.MinimumVersion, out var depVer) || depVer is null || depVer.IsOlderThan(modData.Item2, onlyMajorMinor: behavior == VersionBehavior.Update)) {
+
+				SemanticVersion? depVer = null;
+				if (!string.IsNullOrEmpty(entry.MinimumVersion))
+					SemanticVersion.TryParse(entry.MinimumVersion, out depVer);
+
+				if (depVer is null ||
+					(behavior == VersionBehavior.Set || behavior == VersionBehavior.SetNoPrerelease || behavior == VersionBehavior.SetFull) ||
+					depVer.IsOlderThan(modData.Item2, onlyMajorMinor: behavior == VersionBehavior.Update)
+				) {
 					switch (behavior) {
 						case VersionBehavior.Warning:
 						case VersionBehavior.Error:
@@ -398,12 +427,15 @@ public class GenerateSMAPIManifestTask : Task {
 									ProjectPath
 								);
 							break;
+						case VersionBehavior.Set:
 						case VersionBehavior.Update:
 							entry.MinimumVersion = modData.Item2.ToShortString();
 							break;
+						case VersionBehavior.SetNoPrerelease:
 						case VersionBehavior.UpdateNoPrerelease:
 							entry.MinimumVersion = modData.Item2.ToNoPrereleaseString();
 							break;
+						case VersionBehavior.SetFull:
 						case VersionBehavior.UpdateFull:
 							entry.MinimumVersion = modData.Item2.ToString();
 							break;
@@ -462,6 +494,8 @@ public class GenerateSMAPIManifestTask : Task {
 						int idx = id.IndexOf("/", StringComparison.OrdinalIgnoreCase);
 						if (idx == -1 || idx != id.LastIndexOf("/", StringComparison.OrdinalIgnoreCase))
 							Log.LogGen(LogLevel.Warning, $"UpdateKey '{key}' has an invalid GitHub repository key. Must be a username and project name, like: 'Pathoschild/SMAPI'.", ProjectPath);
+						if (!string.IsNullOrEmpty(parsed.Value.Item3))
+							Log.LogGen(LogLevel.Warning, $"UpdateKey '{key}' has an update subkey, but subkeys don't work for GitHub repositories due to how releases are fetched.", ProjectPath);
 						break;
 					case "updatemanifest":
 						try {
