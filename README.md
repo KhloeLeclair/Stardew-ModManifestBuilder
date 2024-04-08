@@ -421,6 +421,19 @@ Default: `Warning`
 </td>
 </tr>
 <tr>
+<td><code>&lt;MinimumGameVersion_Behavior&gt;</close></td>
+<td>
+
+This value controls the behavior of `<MinimumGameVersion>`. See the relevant
+section above for details on how this value functions.
+
+Default: `Warning`
+
+*Added in 2.3*
+
+</td>
+</tr>
+<tr>
 <td><code>&lt;References_VersionBehavior&gt;</code></td>
 <td>
 
