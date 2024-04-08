@@ -13,7 +13,7 @@
   <!-- build config -->
   <PropertyGroup>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -23,7 +23,7 @@
     <ModSet>DevMods</ModSet>
 
     <!-- sorry everyone I have a weird folder structure -->
-    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley - 1.5.6 with 3.14</GamePath>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
 
     <GameModsPath>$(GamePath)\$(ModSet)</GameModsPath>
     <ModZipPath>$(SolutionDir)\_releases</ModZipPath>
@@ -39,7 +39,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(GamePath)\smapi-internal\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.0.2" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <ProjectReference Include="..\TestMod\TestMod.csproj">
       <Private>false</Private>
       <VersionBehavior>Update</VersionBehavior>

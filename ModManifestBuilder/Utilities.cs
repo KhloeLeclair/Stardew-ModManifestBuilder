@@ -371,7 +371,8 @@ public static class Utilities {
 						FileVersionInfo fv = FileVersionInfo.GetVersionInfo(reference.ItemSpec);
 						gameVersion = new SemanticVersion(fv.ProductVersion);
 					} catch (Exception ex) {
-						Log.LogGen(LogLevel.Warning, $"Unable to parse game version normally. Using fall back method. Error: {ex}");
+						// This is expected, just ignore it and move on.
+						Log.LogGen(LogLevel.Trace, $"Unable to parse game version normally. Using fall back method. This is not an error. Message: {ex}");
 						gameVersion = new SemanticVersion(an.Version);
 					}
 

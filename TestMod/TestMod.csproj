@@ -23,7 +23,7 @@
   <!-- build config -->
   <PropertyGroup>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
 
     <ManifestWarningsAsErrors Condition="$(Configuration) == 'Release'">true</ManifestWarningsAsErrors>
@@ -35,7 +35,8 @@
     <ModSet>DevMods</ModSet>
 
     <!-- sorry everyone I have a weird folder structure -->
-    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley - 1.5.6 with 3.14</GamePath>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
+    <!--GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley - 1.5.6 with 3.14</GamePath-->
 
     <GameModsPath>$(GamePath)\$(ModSet)</GameModsPath>
     <ModZipPath>$(SolutionDir)\_releases</ModZipPath>
@@ -48,9 +49,9 @@
 
   <!-- references -->
   <ItemGroup>
-    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.0.2" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <Reference Include="DynamicGameAssets">
-      <HintPath>$(GameModsPath)\DynamicGameAssets\DynamicGameAssets.dll</HintPath>
+      <HintPath>$(GameModsPath)\FauxCore\FauxCore.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

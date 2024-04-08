@@ -1,5 +1,12 @@
 ## Changelog
 
+### 2.3.1
+Released on April 8th, 2024.
+
+* Fixed the game version parsing raising a warning when it cannot be parsed
+  as a semantic version, as the game doesn't use semantic versioning.
+
+
 ### 2.3.0
 Released on April 8th, 2024.
 
