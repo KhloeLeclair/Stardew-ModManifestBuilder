@@ -1,5 +1,12 @@
 ## Changelog
 
+### 2.3.0
+Released on April 8th, 2024.
+
+* Added `<MinimumGameVersion>` and `<MinimumGameVersion_Behavior>` for setting
+  the new `"MinimumGameVersion"` manifest property.
+
+
 ### 2.2.0
 Released on March 31st, 2024.
 

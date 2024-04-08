@@ -26,6 +26,8 @@ public class ModManifest {
 
 	public string? MinimumApiVersion { get; set; }
 
+	public string? MinimumGameVersion { get; set; }
+
 	public string? EntryDll { get; set; }
 
 	public ModContentPackFor? ContentPackFor { get; set; }

@@ -169,6 +169,41 @@ be logged instead and your project will fail to build.
 </td>
 </tr>
 <tr>
+<td><code>&lt;MinimumGameVersion&gt;</code></td>
+<td>
+
+MinimumGameVersion is saved to your manifest to the `"MinimumGameVersion"` field.
+
+Depending on the value of `<MinimumGameVersion_Behavior>`, MinimumGameVersion will
+be handled differently.
+
+If the behavior is set to `Update` or `UpdateFull`, the input for
+MinimumGameVersion will be ignored and the generated manifest's
+`"MinimumGameVersion"` field will be set to the version of Stardew Valley
+that you're building against.
+
+`UpdateFull` will use the format `{MajorVersion}.{MinorVersion}.{PatchVersion}`,
+while `Update` will use the format `{MajorVersion}.{MinorVersion}`
+
+> Note: If you're compiling against a non-release build of Stardew, such as an
+> alpha, then `Update` will still use the full version string.
+
+If the behavior is set to `Ignore`, no validation will be performed. Otherwise,
+the MinimumGameVersion is first validated as a valid semantic version. Then, the
+version is compared to the version of the game that your project is being built
+against.
+
+If the MinimumGameVersion is *older* than the installed version of Stardew Valley,
+a warning will be logged. If the behavior is set to `Error`, then an error will
+be logged instead and your project will fail to build.
+
+Setting this to `"auto"` will act as though the behavior was set to `UpdateFull`.
+
+*Added in 2.3*
+
+</td>
+</tr>
+<tr>
 <td><code>&lt;UpdateKeys&gt;</code></td>
 <td>
 

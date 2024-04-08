@@ -8,6 +8,7 @@
 		<AlwaysSetEntryDll Condition="'$(AlwaysSetEntryDll)' == ''">true</AlwaysSetEntryDll>
 		<Version_AppendConfiguration Condition="'$(Version_AppendConfiguration)' == ''">true</Version_AppendConfiguration>
 		<MinimumApiVersion_Behavior Condition="'$(MinimumApiVersion_Behavior)' == ''">warning</MinimumApiVersion_Behavior>
+		<MinimumGameVersion_Behavior Condition="'$(MinimumGameVersion_Behavior)' == ''">warning</MinimumGameVersion_Behavior>
 		<Dependencies_VersionBehavior Condition="'$(Dependencies_VersionBehavior)' == ''">warning</Dependencies_VersionBehavior>
 		<Dependencies_AlwaysIncludeRequired Condition="'$(Dependencies_AlwaysIncludeRequired)' == ''">false</Dependencies_AlwaysIncludeRequired>
 		<ManifestComment Condition="'$(ManifestComment)' == ''">true</ManifestComment>
@@ -44,6 +45,7 @@
 			Authors="$(Authors)"
 			Description="$(Description)"
 			MinimumApiVersion="$(MinimumApiVersion)"
+			MinimumGameVersion="$(MinimumGameVersion)"
 			UpdateKeys="$(UpdateKeys)"
 			References="@(ReferencePathWithRefAssemblies);@(ReferenceDependencyPaths)"
 			Dependencies="@(SMAPIDependency)"
@@ -64,6 +66,7 @@
 			ManifestSchema="$(ManifestSchema)"
 			ManifestWarningsAsErrors="$(ManifestWarningsAsErrors)"
 			MinimumApiVersion_Behavior="$(MinimumApiVersion_Behavior)"
+			MinimumGameVersion_Behavior="$(MinimumGameVersion_Behavior)"
 			Version_AppendConfiguration="$(Version_AppendConfiguration)"
 			References_VersionBehavior="$(References_VersionBehavior)"
 		/>

@@ -75,6 +75,21 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			return ToString();
 		}
 
+		public string ToNoRevisionString(bool includePatch = true, bool includePrerelease = false) {
+			string version = $"{Major}.{Minor}";
+			if (includePatch)
+				version += $".{Patch}";
+
+			if (includePrerelease) {
+				if (!string.IsNullOrEmpty(Prerelease))
+					version += $"-{Prerelease}";
+				if (!string.IsNullOrEmpty(Build))
+					version += $"+{Build}";
+			}
+
+			return version;
+		}
+
 		public string ToNoPrereleaseString() {
 			string version = $"{Major}.{Minor}.{Patch}";
 			if (Revision != 0)

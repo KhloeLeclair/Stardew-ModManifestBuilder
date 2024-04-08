@@ -9,9 +9,10 @@
   "UniqueID": "Leclair.Stardew.TestMod",
   "Name": "Test Mod",
   "Author": "Khloe Leclair",
-  "Version": "1.2.0-sdvalpha",
+  "Version": "1.2.0-sdvalpha.Debug",
   "Description": "Some mod for testing.",
   "MinimumApiVersion": "3.17",
+  "MinimumGameVersion": "1.5.6",
   "EntryDll": "TestMod.dll",
   "Dependencies": [
     {

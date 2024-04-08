@@ -11,6 +11,7 @@
     <Version>1.2.0-sdvalpha</Version>
     <UpdateKeys>NexusMods:1234;ModDrop:1234,github:myrepo,chucklefish:hi,updatemanifest:manifest.json,github:KhloeLeclair/SomethingThatDonTexist@Test</UpdateKeys>
     <MinimumApiVersion>auto</MinimumApiVersion>
+    <MinimumGameVersion_Behavior>SetFull</MinimumGameVersion_Behavior>
     <EnableGMCM>true</EnableGMCM>
   </PropertyGroup>
 

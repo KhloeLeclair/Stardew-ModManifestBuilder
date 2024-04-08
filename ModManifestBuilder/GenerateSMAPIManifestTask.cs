@@ -41,6 +41,7 @@ public class GenerateSMAPIManifestTask : Task {
 	public bool ManifestComment { get; set; }
 	public string? ManifestSchema { get; set; }
 	public string? MinimumApiVersion_Behavior { get; set; }
+	public string? MinimumGameVersion_Behavior { get; set; }
 	public string? References_VersionBehavior { get; set; }
 	public bool Version_AppendConfiguration { get; set; }
 
@@ -80,6 +81,8 @@ public class GenerateSMAPIManifestTask : Task {
 	
 	public string? MinimumApiVersion { get; set; }
 
+	public string? MinimumGameVersion { get; set; }
+
 	public string[]? UpdateKeys { get; set; }
 
 	#endregion
@@ -89,10 +92,12 @@ public class GenerateSMAPIManifestTask : Task {
 	private Lazy<VersionBehavior> _DepVersionBehavior => Utilities.GetEnumReader(() => Dependencies_VersionBehavior, VersionBehavior.Warning, VersionBehavior.Error);
 	private Lazy<VersionBehavior> _RefVersionBehavior => Utilities.GetEnumReader(() => References_VersionBehavior, VersionBehavior.UpdateNoPrerelease, VersionBehavior.Error);
 	private Lazy<VersionBehavior> _SMAPIVersionBehavior => Utilities.GetEnumReader(() => MinimumApiVersion_Behavior, VersionBehavior.Update, VersionBehavior.Error);
+	private Lazy<VersionBehavior> _GameVersionBehavior => Utilities.GetEnumReader(() => MinimumGameVersion_Behavior, VersionBehavior.Update, VersionBehavior.Error);
 
 	public VersionBehavior DepVersionBehavior => _DepVersionBehavior.Value;
 	public VersionBehavior RefVersionBehavior => _RefVersionBehavior.Value;
 	public VersionBehavior SMAPIVersionBehavior => _SMAPIVersionBehavior.Value;
+	public VersionBehavior GameVersionBehavior => _GameVersionBehavior.Value;
 
 	#endregion
 
@@ -124,13 +129,14 @@ public class GenerateSMAPIManifestTask : Task {
 		}
 
 		// Read the version of SMAPI as well as all the mod dependencies we have.
-		var (smapiVersion, modReferences) = Utilities.ParseReferences(References, GamePath, Log);
-		if (smapiVersion is null) {
-			Log.LogGen(LogLevel.Error, "Mods must reference StardewModdingAPI. Are you using Pathoschild.Stardew.ModBuildConfig?", ProjectPath);
+		var (smapiVersion, gameVersion, modReferences) = Utilities.ParseReferences(References, GamePath, Log);
+		if (smapiVersion is null || gameVersion is null) {
+			Log.LogGen(LogLevel.Error, "Mods must reference StardewModdingAPI and StardewValley. Are you using Pathoschild.Stardew.ModBuildConfig?", ProjectPath);
 			return false;
 		}
 
 		Log.LogGen(LogLevel.Debug, $"SMAPI Version: {smapiVersion}", ProjectPath);
+		Log.LogGen(LogLevel.Debug, $"Game Version: {gameVersion}", ProjectPath);
 
 		// Now let's load our manifest. Either start with a fresh object, or
 		// load a base manifest (which might also be our target).
@@ -270,6 +276,58 @@ public class GenerateSMAPIManifestTask : Task {
 				Log.LogGen(
 					SMAPIVersionBehavior == VersionBehavior.Error ? LogLevel.Error : LogLevel.Warning,
 					$"MinimumApiVersion is set to '{manifest.MinimumApiVersion}' but you're building against SMAPI version '{smapiVersion}', which is newer.",
+					ProjectPath
+				);
+			}
+		}
+
+		// Use <MinimumGameVersion> if it was specified.
+		switch (GameVersionBehavior) {
+			case VersionBehavior.Update:
+			case VersionBehavior.Set:
+				manifest.MinimumGameVersion = gameVersion.ToNoRevisionString(false);
+				setFields?.Add(nameof(manifest.MinimumGameVersion));
+				break;
+			case VersionBehavior.UpdateNoPrerelease:
+			case VersionBehavior.SetNoPrerelease:
+				manifest.MinimumGameVersion = gameVersion.ToNoRevisionString(true, false);
+				setFields?.Add(nameof(manifest.MinimumGameVersion));
+				break;
+			case VersionBehavior.UpdateFull:
+			case VersionBehavior.SetFull:
+				manifest.MinimumGameVersion = gameVersion.ToNoRevisionString(true, true);
+				setFields?.Add(nameof(manifest.MinimumGameVersion));
+				break;
+			default:
+				if (!string.IsNullOrWhiteSpace(MinimumGameVersion)) {
+					// If the MinimumGameVersion is "auto", then set it to the game
+					// version we're building against. This is just an easier way
+					// to set the version behavior to "update".
+					if (MinimumGameVersion!.Equals("auto", StringComparison.OrdinalIgnoreCase) || MinimumGameVersion.Equals("automatic", StringComparison.OrdinalIgnoreCase))
+						manifest.MinimumGameVersion = gameVersion.ToNoRevisionString(true, true);
+					else
+						manifest.MinimumGameVersion = MinimumGameVersion;
+
+					setFields?.Add(nameof(manifest.MinimumGameVersion));
+				}
+				break;
+		}
+
+		// Validate MinimumGameVersion
+		// Skip this for Update and UpdateFull because those obviously are
+		// fine, since we set them.
+		if (GameVersionBehavior == VersionBehavior.Error || GameVersionBehavior == VersionBehavior.Warning) {
+			if (string.IsNullOrEmpty(manifest.MinimumGameVersion)) {
+				Log.LogGen(
+					GameVersionBehavior == VersionBehavior.Error ? LogLevel.Error : LogLevel.Warning,
+					$"No <MinimumGameVersion> specified and \"MinimumGameVersion\" is not present in existing manifest.",
+					ProjectPath
+				);
+
+			} else if (!SemanticVersion.TryParse(manifest.MinimumGameVersion, out var minimum) || minimum is null || minimum.IsOlderThan(gameVersion, onlyMajorMinor: true)) {
+				Log.LogGen(
+					SMAPIVersionBehavior == VersionBehavior.Error ? LogLevel.Error : LogLevel.Warning,
+					$"MinimumGameVersion is set to '{manifest.MinimumGameVersion}' but you're building against game version '{gameVersion.ToNoRevisionString(true,true)}', which is newer.",
 					ProjectPath
 				);
 			}

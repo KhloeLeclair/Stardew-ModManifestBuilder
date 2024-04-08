@@ -317,7 +317,7 @@ public static class Utilities {
 	}
 
 	/// <summary>
-	/// Read the version of SMAPI, as well as all the mods that the project has
+	/// Read the version of SMAPI, the game, and all the mods that the project has
 	/// references for. This also checks to ensure that references to SMAPI
 	/// and all mods have their <c>&lt;Private&gt;</c> set correctly to avoid
 	/// including them in the build output and generates errors otherwise.
@@ -325,8 +325,9 @@ public static class Utilities {
 	/// <param name="references">The array of project references to read from.</param>
 	/// <param name="Log">A logging helper we can log messages to.</param>
 	/// <returns>The parsed SMAPI version and a dictionary of mod references</returns>
-	public static (SemanticVersion?, Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)>) ParseReferences(ITaskItem[]? references, string? gamePath, TaskLoggingHelper Log) {
+	public static (SemanticVersion?, SemanticVersion?, Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)>) ParseReferences(ITaskItem[]? references, string? gamePath, TaskLoggingHelper Log) {
 		SemanticVersion? smapiVersion = null;
+		SemanticVersion? gameVersion = null;
 		Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)> modReferences = new();
 
 		if (references is not null) {
@@ -354,6 +355,37 @@ public static class Utilities {
 						string source = match == 0 ? "SMAPI" : "the game";
 						Log.LogGen(LogLevel.Warning, $"Reference to '{an.Name}', which is provided by {source}, does not have <Private> set to \"false\" and may be included in the build output.");
 					}
+				}
+
+				// Is it the game?
+				if (an?.Name == "Stardew Valley") {
+					// If we already have a version, then this is weird.
+					if (gameVersion != null) {
+						Log.LogGen(LogLevel.Warning, "Project has more than one reference to Stardew Valley.");
+						continue;
+					}
+
+					// For the sake of parity, read the version the same as
+					// everything else. We only care about {Major}.{Minor}.{Patch} though.
+					try {
+						FileVersionInfo fv = FileVersionInfo.GetVersionInfo(reference.ItemSpec);
+						gameVersion = new SemanticVersion(fv.ProductVersion);
+					} catch (Exception ex) {
+						Log.LogGen(LogLevel.Warning, $"Unable to parse game version normally. Using fall back method. Error: {ex}");
+						gameVersion = new SemanticVersion(an.Version);
+					}
+
+					// Log a warning if we're building against a version of
+					// the game with a release tag. This likely means we're
+					// building against an alpha or beta release.
+					if (!string.IsNullOrWhiteSpace(gameVersion.Prerelease))
+						Log.LogGen(LogLevel.Warning, $"The referenced version of Stardew Valley ('{gameVersion}') is not a standard release.");
+
+					// Check to ensure that the SMAPI reference is not <Private>.
+					if (!reference.GetMetadata("Private").TryParseBoolean(out bool isPrivate) || isPrivate)
+						Log.LogGen(LogLevel.Warning, "Reference to Stardew Valley does not have <Private> set to \"false\" and will be included in the build output.");
+
+					continue;
 				}
 
 				// Is it SMAPI?
@@ -431,7 +463,7 @@ public static class Utilities {
 			}
 		}
 
-		return (smapiVersion, modReferences);
+		return (smapiVersion, gameVersion, modReferences);
 	}
 
 }
