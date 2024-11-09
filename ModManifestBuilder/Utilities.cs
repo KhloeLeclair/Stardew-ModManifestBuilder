@@ -174,7 +174,7 @@ public static class Utilities {
 		Log(log, level, message, file, line, col);
 	}
 
-	public static void Log(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line=0, int col=0) {
+	public static void Log(this TaskLoggingHelper log, LogLevel level, string message, string? file = null, int line = 0, int col = 0) {
 		if (ManifestWarningsAsErrors && level == LogLevel.Warning)
 			level = LogLevel.Error;
 
@@ -214,9 +214,9 @@ public static class Utilities {
 
 		List<string> result = new();
 
-		foreach(string file in Directory.EnumerateFiles(path!)) {
+		foreach (string file in Directory.EnumerateFiles(path!)) {
 			string ext = Path.GetExtension(file);
-			switch(ext) {
+			switch (ext) {
 				case ".dll":
 				case ".exe":
 					break;
@@ -251,7 +251,7 @@ public static class Utilities {
 
 	public static Dictionary<string, (ModManifest, SemanticVersion)> DiscoverMods(string? modsPath) {
 		Dictionary<string, (ModManifest, SemanticVersion)> result = new();
-		if (string.IsNullOrEmpty(modsPath) || ! Directory.Exists(modsPath))
+		if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
 			return result;
 
 		bool OnFound(string path, ModManifest manifest, SemanticVersion version) {
@@ -279,7 +279,7 @@ public static class Utilities {
 				return TryConsumeMod(path, manifestFile, onFound);
 		}
 
-		foreach(string dir in Directory.EnumerateDirectories(path)) {
+		foreach (string dir in Directory.EnumerateDirectories(path)) {
 			string name = Path.GetFileName(dir);
 
 			// Skip directories starting with a "."

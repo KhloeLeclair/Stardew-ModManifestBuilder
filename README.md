@@ -279,6 +279,30 @@ and the manifest will be built from scratch.
 </td>
 </tr>
 <tr>
+<td><code>&lt;ContentPacks_VersionBehavior&gt;</code></td>
+<td>
+
+This controls how ModManifestBuilder interacts with `<ContentPacks>`
+declarations in your project, a feature of ModBuildConfig that allows
+for bundling content packs with your mods.
+
+By default, this is set to `Set` which causes the version of all
+bundled content packs to be set to the same `<Version>` as your main
+mod project.
+
+You can set this to `Ignore` to not affect the version of bundled
+content packs at all. You can also set this to `Read` to cause
+ModManifestBuilder to simply read the current version of each pack from
+their manifests and store them into the `<ContentPacks>` tags in order
+to appease ModBuildConfig's version checker.
+
+Default: `Set`
+
+*Added in 2.4*
+
+</td>
+</tr>
+<tr>
 <td><code>&lt;Dependencies_AlwaysIncludeRequire&gt;</code></td>
 <td>
 

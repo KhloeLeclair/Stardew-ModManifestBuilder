@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<ModManifestBuilderPath Condition="'$(ModManifestBuilderPath)' == ''">Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
+		<ModManifestBuilderPath Condition="'$(ModManifestBuilderPath)' == ''">$(MSBuildThisFileDirectory)Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
 
 		<ManifestName Condition="'$(ManifestName)' == ''">manifest.json</ManifestName>
 		<BaseManifest Condition="'$(BaseManifest)' == ''">$(ManifestName)</BaseManifest>
@@ -11,6 +11,7 @@
 		<MinimumGameVersion_Behavior Condition="'$(MinimumGameVersion_Behavior)' == ''">warning</MinimumGameVersion_Behavior>
 		<Dependencies_VersionBehavior Condition="'$(Dependencies_VersionBehavior)' == ''">warning</Dependencies_VersionBehavior>
 		<Dependencies_AlwaysIncludeRequired Condition="'$(Dependencies_AlwaysIncludeRequired)' == ''">false</Dependencies_AlwaysIncludeRequired>
+    <ContentPacks_VersionBehavior Condition="'$(ContentPacks_VersionBehavior)' == ''">update</ContentPacks_VersionBehavior>
 		<ManifestComment Condition="'$(ManifestComment)' == ''">true</ManifestComment>
 		<ManifestSchema Condition="'$(ManifestSchema)' == ''">true</ManifestSchema>
 		<ManifestWarningsAsErrors Condition="'$(ManifestWarningsAsErrors)' == ''">false</ManifestWarningsAsErrors>
@@ -35,9 +36,15 @@
 			<Reference Include="@(_SMAPIModReferences)" />
 		</ItemGroup>
 	</Target>
-	
+
 	<Target Name="BuildManifest" BeforeTargets="AfterBuild">
-		<GenerateSMAPIManifestTask
+    <ItemGroup>
+      <_ContentPacksCopy Include="@(ContentPacks)" />
+    </ItemGroup>
+    <ItemGroup>
+      <ContentPacks Remove="@(ContentPacks)" />
+    </ItemGroup>
+    <GenerateSMAPIManifestTask
 			Name="$(Name)"
 			Version="$(Version)"
 			UniqueId="$(UniqueId)"
@@ -49,6 +56,7 @@
 			UpdateKeys="$(UpdateKeys)"
 			References="@(ReferencePathWithRefAssemblies);@(ReferenceDependencyPaths)"
 			Dependencies="@(SMAPIDependency)"
+			ContentPacks="@(_ContentPacksCopy)"
 
 			AssemblyName="$(AssemblyName)"
 			ProjectDir="$(ProjectDir)"
@@ -68,8 +76,11 @@
 			MinimumApiVersion_Behavior="$(MinimumApiVersion_Behavior)"
 			MinimumGameVersion_Behavior="$(MinimumGameVersion_Behavior)"
 			Version_AppendConfiguration="$(Version_AppendConfiguration)"
+			ContentPacks_VersionBehavior="$(ContentPacks_VersionBehavior)"
 			References_VersionBehavior="$(References_VersionBehavior)"
-		/>
+		>
+      <Output TaskParameter="UpdatedContentPacks" ItemName="ContentPacks" />
+    </GenerateSMAPIManifestTask>
 	</Target>
 
 </Project>

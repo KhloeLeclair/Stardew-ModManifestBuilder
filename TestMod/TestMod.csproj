@@ -8,7 +8,7 @@
     <Name>Test Mod</Name>
     <Authors>Khloe Leclair</Authors>
     <Description>Some mod for testing.</Description>
-    <Version>1.2.0-sdvalpha</Version>
+    <Version>1.2.2-sdvalpha</Version>
     <UpdateKeys>NexusMods:1234;ModDrop:1234,github:myrepo,chucklefish:hi,updatemanifest:manifest.json,github:KhloeLeclair/SomethingThatDonTexist@Test</UpdateKeys>
     <MinimumApiVersion>auto</MinimumApiVersion>
     <MinimumGameVersion_Behavior>SetFull</MinimumGameVersion_Behavior>
@@ -18,6 +18,10 @@
   <ItemGroup>
     <SMAPIDependency Include="spacechase0.SpaceCore" Version="1.10" Required="true" Reference="true" />
     <SMAPIDependency Condition="$(EnableGMCM)" Include="spacechase0.GenericModConfigMenu" Version="1.9" Required="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ContentPacks Include="[CP] Thing" />
   </ItemGroup>
 
   <!-- build config -->
@@ -36,7 +40,6 @@
 
     <!-- sorry everyone I have a weird folder structure -->
     <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
-    <!--GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley - 1.5.6 with 3.14</GamePath-->
 
     <GameModsPath>$(GamePath)\$(ModSet)</GameModsPath>
     <ModZipPath>$(SolutionDir)\_releases</ModZipPath>
@@ -49,9 +52,9 @@
 
   <!-- references -->
   <ItemGroup>
-    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
-    <Reference Include="DynamicGameAssets">
-      <HintPath>$(GameModsPath)\FauxCore\FauxCore.dll</HintPath>
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
+    <Reference Include="BetterCrafting">
+      <HintPath>$(GameModsPath)\BetterCrafting\BetterCrafting.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -59,7 +62,7 @@
   <!-- Import the ModManifestBuilder directly for development -->
   <!-- We need to set a different path because reasons. -->
   <PropertyGroup>
-    <ModManifestBuilderPath>..\bin\Debug\netstandard2.0\Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
+    <ModManifestBuilderPath>..\bin\$(Configuration)\netstandard2.0\Leclair.Stardew.ModManifestBuilder.dll</ModManifestBuilderPath>
   </PropertyGroup>
   
   <Import Project="..\ModManifestBuilder\assets\package.targets" />

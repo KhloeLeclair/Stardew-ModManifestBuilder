@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -26,6 +22,14 @@ public enum VersionBehavior {
 	SetFull
 };
 
+public enum CPVersionBehavior {
+	Ignore,
+	Set,
+	Update,
+	Read
+};
+
+
 /// <summary>
 /// Generates a SMAPI <c>manifest.json</c> file using values from the
 /// project's configuration.
@@ -44,6 +48,7 @@ public class GenerateSMAPIManifestTask : Task {
 	public string? MinimumGameVersion_Behavior { get; set; }
 	public string? References_VersionBehavior { get; set; }
 	public bool Version_AppendConfiguration { get; set; }
+	public string? ContentPacks_VersionBehavior { get; set; }
 
 	public bool ManifestWarningsAsErrors { get; set; }
 
@@ -65,6 +70,11 @@ public class GenerateSMAPIManifestTask : Task {
 	public ITaskItem[]? References { get; set; }
 	public ITaskItem[]? Dependencies { get; set; }
 
+	public ITaskItem[]? ContentPacks { get; set; }
+
+	[Output]
+	public ITaskItem[]? UpdatedContentPacks { get; set; }
+
 	// Manifest Keys 
 	public string? Name { get; set; }
 
@@ -78,7 +88,7 @@ public class GenerateSMAPIManifestTask : Task {
 	public string? Author { get; set; }
 
 	public string? UniqueId { get; set; }
-	
+
 	public string? MinimumApiVersion { get; set; }
 
 	public string? MinimumGameVersion { get; set; }
@@ -93,11 +103,14 @@ public class GenerateSMAPIManifestTask : Task {
 	private Lazy<VersionBehavior> _RefVersionBehavior => Utilities.GetEnumReader(() => References_VersionBehavior, VersionBehavior.UpdateNoPrerelease, VersionBehavior.Error);
 	private Lazy<VersionBehavior> _SMAPIVersionBehavior => Utilities.GetEnumReader(() => MinimumApiVersion_Behavior, VersionBehavior.Update, VersionBehavior.Error);
 	private Lazy<VersionBehavior> _GameVersionBehavior => Utilities.GetEnumReader(() => MinimumGameVersion_Behavior, VersionBehavior.Update, VersionBehavior.Error);
+	private Lazy<CPVersionBehavior> _ContentPacks_VersionBehavior => Utilities.GetEnumReader(() => ContentPacks_VersionBehavior, CPVersionBehavior.Set, CPVersionBehavior.Ignore);
 
 	public VersionBehavior DepVersionBehavior => _DepVersionBehavior.Value;
 	public VersionBehavior RefVersionBehavior => _RefVersionBehavior.Value;
 	public VersionBehavior SMAPIVersionBehavior => _SMAPIVersionBehavior.Value;
 	public VersionBehavior GameVersionBehavior => _GameVersionBehavior.Value;
+
+	public CPVersionBehavior CPVersionBehavior => _ContentPacks_VersionBehavior.Value;
 
 	#endregion
 
@@ -230,7 +243,7 @@ public class GenerateSMAPIManifestTask : Task {
 			Log.LogGen(LogLevel.Error, $"The UniqueID '{manifest.UniqueID}' is not a valid mod ID. IDs must only contain A-Z, 0-9, '_', '.', and '-' characters and must not be empty.");
 
 		// Use <MinimumApiVersion> if it was specified.
-		switch(SMAPIVersionBehavior) {
+		switch (SMAPIVersionBehavior) {
 			case VersionBehavior.Update:
 			case VersionBehavior.Set:
 				manifest.MinimumApiVersion = smapiVersion.ToShortString();
@@ -327,7 +340,7 @@ public class GenerateSMAPIManifestTask : Task {
 			} else if (!SemanticVersion.TryParse(manifest.MinimumGameVersion, out var minimum) || minimum is null || minimum.IsOlderThan(gameVersion, onlyMajorMinor: true)) {
 				Log.LogGen(
 					SMAPIVersionBehavior == VersionBehavior.Error ? LogLevel.Error : LogLevel.Warning,
-					$"MinimumGameVersion is set to '{manifest.MinimumGameVersion}' but you're building against game version '{gameVersion.ToNoRevisionString(true,true)}', which is newer.",
+					$"MinimumGameVersion is set to '{manifest.MinimumGameVersion}' but you're building against game version '{gameVersion.ToNoRevisionString(true, true)}', which is newer.",
 					ProjectPath
 				);
 			}
@@ -344,7 +357,7 @@ public class GenerateSMAPIManifestTask : Task {
 
 		// Handle <SMAPIDependency> entries.
 		if (Dependencies is not null)
-			foreach(var entry in Dependencies) {
+			foreach (var entry in Dependencies) {
 				if (string.IsNullOrEmpty(entry.ItemSpec))
 					continue;
 
@@ -388,7 +401,7 @@ public class GenerateSMAPIManifestTask : Task {
 
 		// Handle hard dependencies.
 		if (modReferences is not null)
-			foreach(var entry in modReferences) {
+			foreach (var entry in modReferences) {
 				var (modMan, modVer, verBehavior) = entry.Value;
 				if (modMan is null || modVer is null || string.IsNullOrEmpty(modMan.UniqueID))
 					continue;
@@ -401,7 +414,7 @@ public class GenerateSMAPIManifestTask : Task {
 						IsRequired = Dependencies_AlwaysIncludeRequired ? true : null
 					};
 
-					switch(behavior) {
+					switch (behavior) {
 						case VersionBehavior.Set:
 						case VersionBehavior.Update:
 							dep.MinimumVersion = modVer.ToShortString();
@@ -425,7 +438,7 @@ public class GenerateSMAPIManifestTask : Task {
 					Log.LogGen(LogLevel.Info, $"Dependency '{modMan.UniqueID}' did not have IsRequired set. Changing to true.", ProjectPath);
 					dep.IsRequired = true;
 
-				} else if (dep.IsRequired.HasValue && ! dep.IsRequired.Value) {
+				} else if (dep.IsRequired.HasValue && !dep.IsRequired.Value) {
 					Log.LogGen(LogLevel.Warning, $"Dependency '{modMan.UniqueID}' was set as not required, despite having a hard reference. Changing to required.", ProjectPath);
 					dep.IsRequired = Dependencies_AlwaysIncludeRequired ? true : null;
 				}
@@ -440,7 +453,7 @@ public class GenerateSMAPIManifestTask : Task {
 		if (manifest.Dependencies is not null) {
 			var mods = Utilities.DiscoverMods(ModsPath);
 
-			foreach(var entry in manifest.Dependencies) {
+			foreach (var entry in manifest.Dependencies) {
 				if (string.IsNullOrEmpty(entry.UniqueID))
 					continue;
 
@@ -641,6 +654,77 @@ public class GenerateSMAPIManifestTask : Task {
 
 		string filename = Path.Combine(ProjectDir, ManifestName);
 		File.WriteAllText(filename, result);
+
+		// Let's update our content packs too.
+		if (ContentPacks != null) {
+			UpdatedContentPacks = new ITaskItem[ContentPacks.Length];
+			for (int i = 0; i < ContentPacks.Length; i++) {
+				var item = ContentPacks[i];
+				UpdatedContentPacks[i] = item;
+
+				string itemVer = item.GetMetadata("Version");
+				CPVersionBehavior behavior;
+				if (!string.IsNullOrWhiteSpace(itemVer)) {
+					if (!Enum.TryParse(itemVer, out behavior))
+						continue;
+				} else
+					behavior = CPVersionBehavior;
+
+				// We do nothing for a content pack if the version is not set to Set, Update, or Read.
+				if (behavior != CPVersionBehavior.Set && behavior != CPVersionBehavior.Update && behavior != CPVersionBehavior.Read)
+					continue;
+
+				// ModBuildConfig validates these. We just want to
+				// find the manifest and update the manifest.
+				if (string.IsNullOrWhiteSpace(item.ItemSpec))
+					continue;
+
+				// Use the same logic to find the manifest that ModBuildConfig does.
+				string folderName = item.GetMetadata("FolderName");
+				if (string.IsNullOrWhiteSpace(folderName))
+					folderName = Path.GetFileName(item.ItemSpec);
+
+				string maniPath = Path.Combine(ProjectDir, folderName, "manifest.json");
+				if (!File.Exists(maniPath)) {
+					Log.LogGen(LogLevel.Warning, $"Unable to find manifest for bundled content pack '{item.ItemSpec}'.");
+					continue;
+				}
+
+				ModManifest packManifest;
+				try {
+					packManifest = JsonConvert.DeserializeObject<ModManifest>(File.ReadAllText(maniPath));
+
+				} catch (Exception ex) {
+					Log.LogGen(LogLevel.Error, $"Unable to load manifest for bundled content pack '{item.ItemSpec}' from '{maniPath}'. Details: {ex}", ProjectPath);
+					continue;
+				}
+
+				if (behavior == CPVersionBehavior.Read) {
+					Log.LogGen(LogLevel.Debug, $"Read version '{packManifest.Version} for '{item.ItemSpec}'.");
+					item.SetMetadata("Version", packManifest.Version);
+
+				} else {
+					if (packManifest.Version != Version) {
+						packManifest.Version = Version;
+
+						// Now save the result.
+						string packResult = JsonConvert.SerializeObject(packManifest, Formatting.Indented, new JsonSerializerSettings() {
+							NullValueHandling = NullValueHandling.Ignore
+						});
+
+						// And actually save it.
+						File.WriteAllText(maniPath, packResult);
+
+						Log.LogGen(LogLevel.Info, $"Setting version for '{item.ItemSpec}' in '{maniPath}.");
+					}
+
+					// Update the metadata since we got this far.
+					item.SetMetadata("Version", Version);
+				}
+
+				UpdatedContentPacks[i] = item;
+			}
+		}
 
 		return !Log.HasLoggedErrors;
 	}

@@ -62,7 +62,7 @@ public class AddSMAPIDependencyReferencesTask : Task {
 
 		List<ITaskItem> result = new List<ITaskItem>();
 
-		if (string.IsNullOrEmpty(ModsPath) || ! Directory.Exists(ModsPath)) {
+		if (string.IsNullOrEmpty(ModsPath) || !Directory.Exists(ModsPath)) {
 			Log.LogAddRef(LogLevel.Error, $"The provided mods directory is empty or missing.", ProjectPath);
 			return false;
 		}
@@ -87,7 +87,7 @@ public class AddSMAPIDependencyReferencesTask : Task {
 				} else if (!File.Exists(dllPath)) {
 					Log.LogAddRef(LogLevel.Error, $"Cannot find EntryDll '{manifest.EntryDll}' for mod '{manifest.UniqueID}'.", from);
 
-				} else if (rawVersion is not null && ! SemanticVersion.TryParse(rawVersion, out wantedVersion)) {
+				} else if (rawVersion is not null && !SemanticVersion.TryParse(rawVersion, out wantedVersion)) {
 					Log.LogAddRef(LogLevel.Error, $"Could not parse required version '{rawVersion}' for mod '{manifest.UniqueID}'.", from);
 
 				} else if (wantedVersion is not null && wantedVersion.IsNewerThan(version)) {

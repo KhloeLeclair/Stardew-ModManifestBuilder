@@ -13,7 +13,7 @@
   "Version": "1.0.0-Debug",
   "Description": "Another mod for testing.",
   "MinimumApiVersion": "3.17",
-  "MinimumGameVersion": "1",
+  "MinimumGameVersion": "1.0",
   "EntryDll": "TestModTwo.dll",
   "Dependencies": [
     {

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Leclair.Stardew.ModManifestBuilder {
 
@@ -83,8 +81,8 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			if (includePrerelease) {
 				if (!string.IsNullOrEmpty(Prerelease))
 					version += $"-{Prerelease}";
-				if (!string.IsNullOrEmpty(Build))
-					version += $"+{Build}";
+				//if (!string.IsNullOrEmpty(Build))
+				//	version += $"+{Build}";
 			}
 
 			return version;
@@ -103,8 +101,8 @@ namespace Leclair.Stardew.ModManifestBuilder {
 				version += $".{Revision}";
 			if (!string.IsNullOrEmpty(Prerelease))
 				version += $"-{Prerelease}";
-			if (!string.IsNullOrEmpty(Build))
-				version += $"+{Build}";
+			//if (!string.IsNullOrEmpty(Build))
+			//	version += $"+{Build}";
 			return version;
 		}
 
@@ -159,12 +157,12 @@ namespace Leclair.Stardew.ModManifestBuilder {
 				return 1;
 
 			int length = parts.Length;
-			for(int i = 0; i < length; i++) {
+			for (int i = 0; i < length; i++) {
 
 				string ours = parts[i];
 				string theirs = other[i];
 
-				if (ours.Equals(theirs, StringComparison.OrdinalIgnoreCase)) { 
+				if (ours.Equals(theirs, StringComparison.OrdinalIgnoreCase)) {
 					if (i == length - 1)
 						return 0;
 					continue;

@@ -1,0 +1,10 @@
+{
+  "UniqueID": "Some.Test.Content.Pack",
+  "Name": "Test Content Pack",
+  "Author": "Khloe Leclair",
+  "Version": "1.2.2-sdvalpha",
+  "Description": "Butts.",
+  "ContentPackFor": {
+    "UniqueID": "spacechase0.SpaceCore"
+  }
+}

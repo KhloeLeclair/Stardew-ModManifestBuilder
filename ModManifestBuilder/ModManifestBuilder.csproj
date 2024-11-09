@@ -4,7 +4,7 @@
 		<!-- NuGet Package -->
 		<PackageId>Leclair.Stardew.ModManifestBuilder</PackageId>
 		<Title>Stardew Mod Manifest Builder</Title>
-		<Version>2.3.1</Version>
+		<Version>2.4.0</Version>
 		<Authors>Khloe Leclair</Authors>
 		<Description>Autogenerate a SMAPI manifest.json based on your project's properties as a build task.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -27,7 +27,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" GeneratePathProperty="true" PrivateAssets="all" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" GeneratePathProperty="true" PrivateAssets="all" />
 	</ItemGroup>
 
 	<!-- Package Structure -->

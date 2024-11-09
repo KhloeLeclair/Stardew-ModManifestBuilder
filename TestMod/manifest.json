@@ -9,15 +9,15 @@
   "UniqueID": "Leclair.Stardew.TestMod",
   "Name": "Test Mod",
   "Author": "Khloe Leclair",
-  "Version": "1.2.0-sdvalpha.Debug",
+  "Version": "1.2.2-sdvalpha",
   "Description": "Some mod for testing.",
-  "MinimumApiVersion": "4.0",
-  "MinimumGameVersion": "1.6.3",
+  "MinimumApiVersion": "4.1",
+  "MinimumGameVersion": "1.6.13",
   "EntryDll": "TestMod.dll",
   "Dependencies": [
     {
-      "UniqueID": "furyx639.FauxCore",
-      "MinimumVersion": "1.0.2"
+      "UniqueID": "leclair.bettercrafting",
+      "MinimumVersion": "2.14.0"
     },
     {
       "UniqueID": "spacechase0.GenericModConfigMenu",
@@ -26,7 +26,7 @@
     },
     {
       "UniqueID": "spacechase0.SpaceCore",
-      "MinimumVersion": "1.21.2"
+      "MinimumVersion": "1.26.1"
     }
   ],
   "UpdateKeys": [

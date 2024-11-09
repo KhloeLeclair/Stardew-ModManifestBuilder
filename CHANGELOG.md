@@ -1,5 +1,13 @@
 ## Changelog
 
+### 2.4.0
+Released on November 9th, 2024.
+
+* Added support for ModBuildConfig's `<ContentPacks>` feature.
+* Fixed the inclusion of build hashes when writing a version to a manifest.
+* Fixed MSBuild trying to use the wrong version of our DLL (hopefully).
+
+
 ### 2.3.1
 Released on April 8th, 2024.
 

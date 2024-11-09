@@ -39,7 +39,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(GamePath)\smapi-internal\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
     <ProjectReference Include="..\TestMod\TestMod.csproj">
       <Private>false</Private>
       <VersionBehavior>Update</VersionBehavior>

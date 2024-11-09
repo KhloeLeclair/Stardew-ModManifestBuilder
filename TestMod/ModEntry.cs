@@ -1,8 +1,4 @@
-using System;
-
 using StardewModdingAPI;
-
-using SpaceCore;
 
 namespace TestMod;
 
