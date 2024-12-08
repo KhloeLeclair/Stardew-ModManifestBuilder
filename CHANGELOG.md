@@ -1,5 +1,14 @@
 ## Changelog
 
+### 2.4.1
+Released on December 8th, 2024.
+
+* Update dependencies to latest versions due to known vulnerabilities.
+* Adjust the project file to hopefully improve the situation with
+  dependencies in the future.
+* Code cleanup.
+
+
 ### 2.4.0
 Released on November 9th, 2024.
 

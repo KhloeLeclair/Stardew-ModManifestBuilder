@@ -25,6 +25,11 @@ generated_code = true
 
 [*.cs]
 
+# Collection Expressions
+dotnet_diagnostic.IDE0305.severity = none
+# Names
+dotnet_diagnostic.IDE1006.severity = silent
+
 # Organize Using
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = true

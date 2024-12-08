@@ -4,14 +4,17 @@
 		<!-- NuGet Package -->
 		<PackageId>Leclair.Stardew.ModManifestBuilder</PackageId>
 		<Title>Stardew Mod Manifest Builder</Title>
-		<Version>2.4.0</Version>
+		<Version>2.4.1</Version>
 		<Authors>Khloe Leclair</Authors>
 		<Description>Autogenerate a SMAPI manifest.json based on your project's properties as a build task.</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>images/package-icon.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/KhloeLeclair/Stardew-ModManifestBuilder#readme</PackageProjectUrl>
 		<PackageTags>smapi;stardew;valley</PackageTags>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/KhloeLeclair/Stardew-ModManifestBuilder.git</RepositoryUrl>
 
 		<!-- Building -->
 		<AssemblyName>Leclair.Stardew.ModManifestBuilder</AssemblyName>
@@ -19,6 +22,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 		<Nullable>enable</Nullable>
 
 		<!-- Copy Dependency DLLs to bin so we can include them -->
@@ -26,8 +30,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" GeneratePathProperty="true" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 
 	<!-- Package Structure -->
@@ -35,6 +39,9 @@
 		<None PackagePath="build/" Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" Visible="false" />
 		<None PackagePath="build/Leclair.Stardew.ModManifestBuilder.dll" Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" Visible="false" />
 		<None PackagePath="build/Leclair.Stardew.ModManifestBuilder.targets" Include="assets\package.targets" Pack="true" />
+
+		<None PackagePath="/" Include="..\README.md" Link="README.md" Pack="true" />
+		<None PackagePath="/" Include="..\CHANGELOG.md" Link="CHANGELOG.md" Pack="true" />
 		<None PackagePath="images/" Include="assets\package-icon.png" Pack="true" />
 	</ItemGroup>
 

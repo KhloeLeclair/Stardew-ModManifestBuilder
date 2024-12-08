@@ -48,7 +48,7 @@ namespace Leclair.Stardew.ModManifestBuilder {
 		public int CompareTo(SemanticVersion? other, bool onlyMajorMinor = false, bool skipPrerelease = false) {
 			return other == null
 				? 1
-				: CompareTo(other.Major, other.Minor, other.Patch, other.Revision, other.Prerelease, other.Build, onlyMajorMinor, skipPrerelease);
+				: CompareTo(other.Major, other.Minor, other.Patch, other.Revision, other.Prerelease, onlyMajorMinor, skipPrerelease);
 		}
 
 		public bool Equals(SemanticVersion? other) {
@@ -118,8 +118,8 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			return false;
 		}
 
-		public int CompareTo(int major, int minor, int patch, int revision, string? release, string? build, bool onlyMajorMinor = false, bool skipPrerelease = false) {
-			int result = CompareToInternal(major, minor, patch, revision, release, build, onlyMajorMinor, skipPrerelease);
+		public int CompareTo(int major, int minor, int patch, int revision, string? release, bool onlyMajorMinor = false, bool skipPrerelease = false) {
+			int result = CompareToInternal(major, minor, patch, revision, release, onlyMajorMinor, skipPrerelease);
 			if (result < 0)
 				return -1;
 			if (result > 0)
@@ -127,7 +127,7 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			return 0;
 		}
 
-		private int CompareToInternal(int major, int minor, int patch, int revision, string? prerelease, string? build, bool onlyMajorMinor, bool skipPrerelease) {
+		private int CompareToInternal(int major, int minor, int patch, int revision, string? prerelease, bool onlyMajorMinor, bool skipPrerelease) {
 			if (onlyMajorMinor && (!string.IsNullOrWhiteSpace(Prerelease) || !string.IsNullOrWhiteSpace(prerelease)))
 				onlyMajorMinor = false;
 
@@ -148,8 +148,8 @@ namespace Leclair.Stardew.ModManifestBuilder {
 			if (string.IsNullOrWhiteSpace(prerelease))
 				return -1;
 
-			string[] parts = Prerelease?.Split('.', '-') ?? Array.Empty<string>();
-			string[] other = prerelease?.Split('.', '-') ?? Array.Empty<string>();
+			string[] parts = Prerelease?.Split('.', '-') ?? [];
+			string[] other = prerelease?.Split('.', '-') ?? [];
 
 			if (parts.Length < other.Length)
 				return -1;

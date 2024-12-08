@@ -96,8 +96,8 @@ public static class Utilities {
 			throw new ArgumentNullException("toPath");
 		}
 
-		Uri fromUri = new Uri(AppendDirectorySeparatorChar(fromPath));
-		Uri toUri = new Uri(AppendDirectorySeparatorChar(toPath));
+		Uri fromUri = new(AppendDirectorySeparatorChar(fromPath));
+		Uri toUri = new(AppendDirectorySeparatorChar(toPath));
 
 		if (fromUri.Scheme != toUri.Scheme) {
 			return toPath;
@@ -210,9 +210,9 @@ public static class Utilities {
 	public static string[] GetSMAPIAssemblies(string? gamePath) {
 		string? path = string.IsNullOrEmpty(gamePath) ? null : Path.Combine(gamePath, "smapi-internal");
 		if (string.IsNullOrEmpty(path) || !Directory.Exists(path!))
-			return Array.Empty<string>();
+			return [];
 
-		List<string> result = new();
+		List<string> result = [];
 
 		foreach (string file in Directory.EnumerateFiles(path!)) {
 			string ext = Path.GetExtension(file);
@@ -232,8 +232,8 @@ public static class Utilities {
 		return result.ToArray();
 	}
 
-	public static string[] GetGameAssemblies(string? gamePath) {
-		return new string[] {
+	public static string[] GetGameAssemblies() {
+		return [
 			"BmFont",
 			"FAudio-CS",
 			"GalaxyCSharp",
@@ -246,11 +246,11 @@ public static class Utilities {
 			"Steamworks.NET",
 			"TextCopy",
 			"xTile"
-		};
+		];
 	}
 
 	public static Dictionary<string, (ModManifest, SemanticVersion)> DiscoverMods(string? modsPath) {
-		Dictionary<string, (ModManifest, SemanticVersion)> result = new();
+		Dictionary<string, (ModManifest, SemanticVersion)> result = [];
 		if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
 			return result;
 
@@ -297,7 +297,7 @@ public static class Utilities {
 	private static bool TryConsumeMod(string path, string manifestFile, FoundModDelegate onFound) {
 		ModManifest manifest;
 		try {
-			manifest = JsonConvert.DeserializeObject<ModManifest>(File.ReadAllText(manifestFile));
+			manifest = JsonConvert.DeserializeObject<ModManifest>(File.ReadAllText(manifestFile)) ?? throw new ArgumentNullException("returned data was null");
 		} catch {
 			return true;
 		}
@@ -328,11 +328,11 @@ public static class Utilities {
 	public static (SemanticVersion?, SemanticVersion?, Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)>) ParseReferences(ITaskItem[]? references, string? gamePath, TaskLoggingHelper Log) {
 		SemanticVersion? smapiVersion = null;
 		SemanticVersion? gameVersion = null;
-		Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)> modReferences = new();
+		Dictionary<string, (ModManifest, SemanticVersion, VersionBehavior?)> modReferences = [];
 
 		if (references is not null) {
 			string[] smapiAssemblies = GetSMAPIAssemblies(gamePath);
-			string[] gameAssemblies = GetGameAssemblies(gamePath);
+			string[] gameAssemblies = GetGameAssemblies();
 
 			foreach (var reference in references) {
 				if (TryParseBoolean(reference.GetMetadata("SMAPIDependency_Exclude"), out bool excl) && excl) {
